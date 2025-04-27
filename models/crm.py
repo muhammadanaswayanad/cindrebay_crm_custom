@@ -74,7 +74,7 @@ class CRMLead(models.Model):
     ], string="Mode of Study", default='offline')
 
     # New fields
-    estimated_joining_date = fields.Date(string="Estimated Joining Date")
+    estimated_joining_date = fields.Char(string="Estimated Joining Date")  # Changed from Date to Char type
     course_preferred = fields.Char(string="Course Preferred")
     preferred_branch = fields.Char(string="Preferred Branch")
     
