@@ -85,8 +85,10 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="mode_of_study" string="Mode of Study" required="0"/>
                     <field name="sales_objection"/>
-                    <!-- Remove these fields from here to avoid duplication -->
-                    <!-- We'll show them in the dedicated tab instead -->
+                    <!-- Remove these fields that appear after deadline and are duplicates -->
+                    <!-- <field name="estimated_joining_date"/>
+                    <field name="course_preferred"/>
+                    <field name="preferred_branch"/> -->
                 </group>
             </xpath>
             
@@ -103,14 +105,14 @@
                 </page>
             </xpath>
 
-            <!-- Add a new xpath to ensure these fields are visible in opportunity view -->
-            <xpath expr="//page[1]" position="after">
-                <page string="Lead Details" invisible="context.get('type', '') != 'opportunity'">
+            <!-- Add a new tab for lead details to ensure they're visible in opportunities -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Course Preferences">
                     <group>
                         <group>
-                            <field name="estimated_joining_date"/>
-                            <field name="course_preferred"/>
-                            <field name="preferred_branch"/>
+                            <field name="estimated_joining_date" string="Estimated Joining Date"/>
+                            <field name="course_preferred" string="Course Preferred"/>
+                            <field name="preferred_branch" string="Preferred Branch"/>
                         </group>
                     </group>
                 </page>
