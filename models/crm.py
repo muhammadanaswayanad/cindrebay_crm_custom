@@ -59,6 +59,21 @@ class CrmStage(models.Model):
 class CRMLead(models.Model):
     _inherit = 'crm.lead'
 
+    # Add a computed field to display contact name more prominently
+    display_name = fields.Char(string="Contact Name", compute="_compute_display_name", store=True)
+    
+    @api.depends('partner_id', 'contact_name', 'partner_name')
+    def _compute_display_name(self):
+        for lead in self:
+            if lead.partner_id:
+                lead.display_name = lead.partner_id.name
+            elif lead.contact_name:
+                lead.display_name = lead.contact_name
+            elif lead.partner_name:
+                lead.display_name = lead.partner_name
+            else:
+                lead.display_name = lead.name
+
     date_closed = fields.Datetime(
         string='Closed Date',
         tracking=True,
