@@ -77,6 +77,12 @@ class CRMLead(models.Model):
     estimated_joining_date = fields.Date(string="Estimated Joining Date")
     course_preferred = fields.Char(string="Course Preferred")
     preferred_branch = fields.Char(string="Preferred Branch")
+    
+    # Add back the field but set it as deprecated
+    malayalee_status = fields.Selection([
+        ('malayalee', 'Malayalee'),
+        ('non_malayalee', 'Non-Malayalee')
+    ], string="Malayalee Status", tracking=True, help="This field is deprecated and will be removed in future versions.")
 
     avatar_128 = fields.Binary(string="Avatar 128", related='partner_id.avatar_128', store=True, readonly=False)
     image_1920 = fields.Binary(string="Image", related="partner_id.image_1920", store=True, readonly=False)

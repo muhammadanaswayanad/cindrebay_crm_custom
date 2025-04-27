@@ -22,6 +22,8 @@
                 <field name="estimated_joining_date"/>
                 <field name="course_preferred"/>
                 <field name="preferred_branch"/>
+                <!-- Keep the field to avoid view errors, but hide it from users -->
+                <field name="malayalee_status" invisible="1"/>
             </field>
         </field>
     </record>
