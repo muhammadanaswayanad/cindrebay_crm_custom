@@ -128,7 +128,7 @@ class CRMLead(models.Model):
     course_id = fields.Many2one('product.product', string="Course", required=False)
     enrollment_number = fields.Char(string="Enrollment No", )
 
-    expected_revenue = fields.Monetary(compute="_compute_expected_revenue", store=True, readonly=False, required=True)
+    expected_revenue = fields.Monetary(compute="_compute_expected_revenue", store=True, readonly=False, required=False)  # Changed from required=True to required=False
     
     referred_by = fields.Many2one('hr.employee', string="Referred By")
     @api.depends('course_id')
@@ -136,6 +136,9 @@ class CRMLead(models.Model):
         for record in self:
             if record.course_id:
                 record.expected_revenue = record.course_id.list_price
+            else:
+                # Set a default value when there's no course_id
+                record.expected_revenue = 0.0
 
     # Override the built-in probability compute method
     probability = fields.Float(compute="_compute_probability")
