@@ -85,10 +85,8 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="mode_of_study" string="Mode of Study" required="0"/>
                     <field name="sales_objection"/>
-                    <!-- Remove these fields that appear after deadline and are duplicates -->
-                    <!-- <field name="estimated_joining_date"/>
-                    <field name="course_preferred"/>
-                    <field name="preferred_branch"/> -->
+                    <field name="course_preferred" string="Course Preferred"/>
+                    <field name="preferred_branch" string="Preferred Branch"/>
                 </group>
             </xpath>
             
