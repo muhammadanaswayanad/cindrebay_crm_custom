@@ -1,25 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- This file is no longer needed as we're placing the fields directly in the main form -->
 <odoo>
-    <!-- Fix for duplicate fields with missing titles -->
-    <record id="crm_lead_view_form_custom_fields" model="ir.ui.view">
-        <field name="name">crm.lead.view.form.custom.fields</field>
-        <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="arch" type="xml">
-            <!-- Add the fields with clear titles in a prominent position -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Course Details">
-                    <group>
-                        <group string="Course Information">
-                            <field name="estimated_joining_date"/>
-                            <field name="course_preferred"/>
-                            <field name="preferred_branch"/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
-            
-            <!-- No need to try to remove the fields, just ensure they're properly displayed elsewhere -->
-        </field>
-    </record>
 </odoo>
