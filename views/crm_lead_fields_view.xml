@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Fix for duplicate fields with missing titles -->
+    <record id="crm_lead_view_form_custom_fields" model="ir.ui.view">
+        <field name="name">crm.lead.view.form.custom.fields</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Remove the duplicated fields without titles (if they exist) -->
+            <xpath expr="//field[@name='estimated_joining_date'][2]" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='course_preferred'][2]" position="replace">
+            </xpath>
+            <xpath expr="//field[@name='preferred_branch'][2]" position="replace">
+            </xpath>
+            
+            <!-- Add the fields with clear titles in a prominent position -->
+            <xpath expr="//group[contains(@name, 'lead_priority')]" position="after">
+                <group string="Course Information">
+                    <field name="estimated_joining_date" string="Estimated Joining Date" />
+                    <field name="course_preferred" string="Course Preferred" />
+                    <field name="preferred_branch" string="Preferred Branch" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
