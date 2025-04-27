@@ -69,7 +69,6 @@
             </xpath>
 
             <xpath expr="//group[1]" position="inside">
-
                 <group>
                     <field name="mobile_alt"/>
                     <field name="whatsapp_number" string="WhatsApp Number" required="0"/>
@@ -90,6 +89,19 @@
                     <field name="course_preferred"/>
                     <field name="preferred_branch"/>
                 </group>
+            </xpath>
+            
+            <!-- Add a new xpath to ensure these fields are visible in opportunity view -->
+            <xpath expr="//page[1]" position="after">
+                <page string="Lead Details" attrs="{'invisible': [('type', '!=', 'opportunity')]}">
+                    <group>
+                        <group>
+                            <field name="estimated_joining_date" attrs="{'readonly': False}"/>
+                            <field name="course_preferred" attrs="{'readonly': False}"/>
+                            <field name="preferred_branch" attrs="{'readonly': False}"/>
+                        </group>
+                    </group>
+                </page>
             </xpath>
 
             <!-- <xpath expr="//group[@name='lead_partner']" position="attributes">

@@ -88,10 +88,10 @@ class CRMLead(models.Model):
         ('online', 'Online')
     ], string="Mode of Study", default='offline')
 
-    # New fields
+    # New fields - adding copy=True to ensure they persist during lead conversion
     estimated_joining_date = fields.Char(string="Estimated Joining Date")  # Changed from Date to Char type
-    course_preferred = fields.Char(string="Course Preferred")
-    preferred_branch = fields.Char(string="Preferred Branch")
+    course_preferred = fields.Char(string="Course Preferred") copy=True)
+    preferred_branch = fields.Char(string="Preferred Branch") copy=True)
     
     # Add back the field but set it as deprecated
     malayalee_status = fields.Selection([
@@ -479,6 +479,23 @@ class CRMLead(models.Model):
             custom_values['type'] = 'lead'
         
         return super(CRMLead, self).message_new(msg_dict, custom_values)
+
+    def convert_opportunity(self, partner_id, user_ids=False, team_id=False):
+        """ Override to preserve custom fields during lead conversion """
+        # Store values of our custom fields before conversion
+        custom_field_values = {
+            'estimated_joining_date': self.estimated_joining_date,
+            'course_preferred': self.course_preferred,
+            'preferred_branch': self.preferred_branch
+        }
+        
+        # Call the original method
+        result = super(CRMLead, self).convert_opportunity(partner_id, user_ids, team_id)
+        
+        # Restore our custom field values
+        self.write(custom_field_values)
+        
+        return result
 
 class CrmLeadChangeRevenueWizard(models.TransientModel):
     _name = 'crm.lead.change.revenue.wizard'
