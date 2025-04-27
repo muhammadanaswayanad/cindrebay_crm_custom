@@ -89,9 +89,9 @@ class CRMLead(models.Model):
     ], string="Mode of Study", default='offline')
 
     # New fields - adding copy=True to ensure they persist during lead conversion
-    estimated_joining_date = fields.Char(string="Estimated Joining Date")  # Changed from Date to Char type
-    course_preferred = fields.Char(string="Course Preferred") copy=True)
-    preferred_branch = fields.Char(string="Preferred Branch") copy=True)
+    estimated_joining_date = fields.Char(string="Estimated Joining Date", copy=True)  # Changed from Date to Char type
+    course_preferred = fields.Char(string="Course Preferred", copy=True)
+    preferred_branch = fields.Char(string="Preferred Branch", copy=True)
     
     # Add back the field but set it as deprecated
     malayalee_status = fields.Selection([
