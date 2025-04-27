@@ -6,22 +6,20 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
-            <!-- Remove the duplicated fields without titles (if they exist) -->
-            <xpath expr="//field[@name='estimated_joining_date'][2]" position="replace">
-            </xpath>
-            <xpath expr="//field[@name='course_preferred'][2]" position="replace">
-            </xpath>
-            <xpath expr="//field[@name='preferred_branch'][2]" position="replace">
+            <!-- Add the fields with clear titles in a prominent position -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Course Details">
+                    <group>
+                        <group string="Course Information">
+                            <field name="estimated_joining_date"/>
+                            <field name="course_preferred"/>
+                            <field name="preferred_branch"/>
+                        </group>
+                    </group>
+                </page>
             </xpath>
             
-            <!-- Add the fields with clear titles in a prominent position -->
-            <xpath expr="//group[contains(@name, 'lead_priority')]" position="after">
-                <group string="Course Information">
-                    <field name="estimated_joining_date" string="Estimated Joining Date" />
-                    <field name="course_preferred" string="Course Preferred" />
-                    <field name="preferred_branch" string="Preferred Branch" />
-                </group>
-            </xpath>
+            <!-- No need to try to remove the fields, just ensure they're properly displayed elsewhere -->
         </field>
     </record>
 </odoo>

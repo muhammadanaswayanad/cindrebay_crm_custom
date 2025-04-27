@@ -85,9 +85,8 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="mode_of_study" string="Mode of Study" required="0"/>
                     <field name="sales_objection"/>
-                    <field name="estimated_joining_date" string="Estimated Joining Date"/>
-                    <field name="course_preferred" string="Course Preferred"/>
-                    <field name="preferred_branch" string="Preferred Branch"/>
+                    <!-- Remove these fields from here to avoid duplication -->
+                    <!-- We'll show them in the dedicated tab instead -->
                 </group>
             </xpath>
             
