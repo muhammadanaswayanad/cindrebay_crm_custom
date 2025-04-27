@@ -85,36 +85,12 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="mode_of_study" string="Mode of Study" required="0"/>
                     <field name="sales_objection"/>
+                    <field name="estimated_joining_date" string="Estimated Joining Date"/>
                     <field name="course_preferred" string="Course Preferred"/>
                     <field name="preferred_branch" string="Preferred Branch"/>
                 </group>
             </xpath>
             
-            <!-- Create a dedicated Lead Details tab that appears in both lead and opportunity views -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Lead Details">
-                    <group>
-                        <group string="Preferences">
-                            <field name="estimated_joining_date" string="Estimated Joining Date"/>
-                            <field name="course_preferred" string="Course Preferred"/>
-                            <field name="preferred_branch" string="Preferred Branch"/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
-
-            <!-- Add a new tab for lead details to ensure they're visible in opportunities -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Course Preferences">
-                    <group>
-                        <group>
-                            <field name="estimated_joining_date" string="Estimated Joining Date"/>
-                            <field name="course_preferred" string="Course Preferred"/>
-                            <field name="preferred_branch" string="Preferred Branch"/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
 
             <!-- <xpath expr="//group[@name='lead_partner']" position="attributes">
                 <attribute name="invisible">0</attribute>
