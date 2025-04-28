@@ -591,3 +591,36 @@ class CrmLeadQueueingLine(models.Model):
     salesperson_id = fields.Many2one('res.users', string="Salesperson")
     current_lead = fields.Many2one('crm.lead', domain=[('type','=','lead')])
     team_id = fields.Many2one('crm.team', check_company=True)
+
+class CrmLeadCollection(models.Model):
+    _name = 'crm.lead.collection'
+    _description = 'CRM Lead Collection'
+
+    lead_id = fields.Many2one('crm.lead', string="Lead", required=True)
+    collection_date = fields.Date(string="Collection Date", required=True)
+    amount = fields.Monetary(string="Amount", required=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
+    collected_amount = fields.Monetary(string="Collected Amount", default=0.0)
+    balance = fields.Monetary(string="Balance", compute="_compute_balance", store=True)
+    state = fields.Selection([('pending', 'Pending'), ('collected', 'Collected')], string="State", default='pending')
+
+    @api.depends('amount', 'collected_amount')
+    def _compute_balance(self):
+        for record in self:
+            record.balance = record.amount - record.collected_amount
+            if record.balance <= 0:
+                record.state = 'collected'
+            else:
+                record.state = 'pending'
+
+    def action_enter_collected_amount(self):
+        view_id = self.env.ref('tijus_crm_custom.view_enter_collected_amount_form').id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Enter Collected Amount',
+            'res_model': 'crm.lead.collection.enter.amount',
+            'view_mode': 'form',
+            'view_id': view_id,
+            'target': 'new',
+            'context': {'default_collection_id': self.id},
+        }
