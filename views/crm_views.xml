@@ -180,6 +180,41 @@
             <xpath expr="//field[@name='source_id']" position="attributes">
                 <attribute name="required">1</attribute>
             </xpath>
+
+            <!-- Add Call Status section after sales_objection -->
+            <xpath expr="//field[@name='sales_objection']" position="after">
+                <field name="call_status"/>
+                <field name="call_remarks" placeholder="Add remarks about this call..."/>
+                <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
+            </xpath>
+            
+            <!-- Add Call History tab -->
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Call History">
+                    <field name="call_history_ids" readonly="1">
+                        <tree>
+                            <field name="create_date"/>
+                            <field name="call_status"/>
+                            <field name="user_id"/>
+                            <field name="remarks"/>
+                        </tree>
+                    </field>
+                </page>
+                
+                <page string="Banking &amp; Other Details">
+                    <group>
+                        <group>
+                            <field name="aadhaar_no" />
+                            <field name="bank_account_name"/>
+                            <field name="bank_account_no"/>
+                            <field name="bank_ifsc_code"/>
+                            <field name="bank_name"/>
+                            <field name="relation_with_bank_acc_holder"/>
+                            <field name="relation_with_bank_acc_holder_manual" invisible="relation_with_bank_acc_holder != 'other'"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
         </field>
     </record>
 
