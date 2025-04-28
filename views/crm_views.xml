@@ -182,14 +182,15 @@
                 <attribute name="required">1</attribute>
             </xpath>
 
-            <!-- Add Call Status section after sales_objection -->
+            <!-- Temporarily comment out call status fields until model is updated 
             <xpath expr="//field[@name='sales_objection']" position="after">
                 <field name="call_status"/>
                 <field name="call_remarks" placeholder="Add remarks about this call..."/>
                 <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
             </xpath>
+            -->
             
-            <!-- Add Call History tab -->
+            <!-- Temporarily comment out call history tab until model is updated 
             <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="Call History">
                     <field name="call_history_ids" readonly="1">
@@ -202,6 +203,8 @@
                     </field>
                 </page>
             </xpath>
+            -->
+
         </field>
     </record>
 
@@ -393,10 +396,12 @@
                 <field name="user_id" widget="many2one_avatar_user" decoration-bf="1" optional="hide"/>
                 <field name="team_id" decoration-bf="1" optional="hide"/>
                 <field name="source_id" optional="hide"/>
+                <!-- Temporarily comment out call status field until model is updated 
                 <field name="call_status" decoration-info="call_status == 'call_1'" 
                        decoration-success="call_status in ['followup_1', 'followup_2', 'followup_3']" 
                        decoration-warning="call_status in ['followup_4', 'followup_5', 'followup_6']" 
                        decoration-danger="call_status in ['followup_7', 'followup_8', 'followup_9', 'followup_10']" optional="hide"/>
+                -->
             </tree>
         </field>
     </record>
@@ -440,7 +445,7 @@
         </field>
     </record>
 
-    <!-- Call history form view -->
+    <!-- Temporarily comment out these views until model is updated 
     <record id="view_crm_lead_call_history_form" model="ir.ui.view">
         <field name="name">crm.lead.call.history.form</field>
         <field name="model">crm.lead.call.history</field>
@@ -463,7 +468,6 @@
         </field>
     </record>
     
-    <!-- Call history tree view -->
     <record id="view_crm_lead_call_history_tree" model="ir.ui.view">
         <field name="name">crm.lead.call.history.tree</field>
         <field name="model">crm.lead.call.history</field>
@@ -477,8 +481,9 @@
             </tree>
         </field>
     </record>
+    -->
 
-    <!-- Add search view for call status -->
+    <!-- Temporarily comment out search filters for call status until model is updated 
     <record id="view_crm_lead_filter_call_status" model="ir.ui.view">
         <field name="name">crm.lead.filter.call.status</field>
         <field name="model">crm.lead</field>
@@ -495,4 +500,5 @@
             </xpath>
         </field>
     </record>
+    -->
 </odoo>
