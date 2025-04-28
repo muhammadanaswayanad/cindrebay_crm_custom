@@ -200,7 +200,9 @@
                         </tree>
                     </field>
                 </page>
-                
+            </xpath>
+
+            <xpath expr="//page[@name='internal_notes']" position="before">
                 <page string="Banking &amp; Other Details">
                     <group>
                         <group>
