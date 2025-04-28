@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
     <record id="view_crm_lead_form_custom" model="ir.ui.view">
         <field name="name">crm.lead.form.custom</field>
         <field name="model">crm.lead</field>
@@ -468,18 +467,16 @@
         action="action_crm_lead_call_history"
         sequence="15"/>
 
-    <!-- Add search view for call status - more generic approach -->
+    <!-- Add search view for call status -->
     <record id="view_crm_lead_filter_call_status" model="ir.ui.view">
         <field name="name">crm.lead.filter.call.status</field>
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
         <field name="arch" type="xml">
-            <!-- Add the field to search in the existing fields section -->
             <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="call_status"/>
-            </xpath> the search filters -->
-            r">
-            <!-- Add the filters at the end of the search view -->
+            </xpath>
+            <!-- Use a more basic approach - add at the beginning of the search view -->
             <xpath expr="//search" position="inside">
                 <separator/>
                 <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
