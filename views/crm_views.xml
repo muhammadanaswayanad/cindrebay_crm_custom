@@ -375,7 +375,7 @@
 
     <!-- Create a custom action for leads -->
     <record id="custom_crm_lead_action" model="ir.actions.act_window">
-        <field name="name">My Leads</field>
+        <field name="name">Custom Leads View</field>
         <field name="res_model">crm.lead</field>
         <field name="view_mode">tree,kanban,form,calendar,graph,pivot</field>
         <field name="domain">[('type','=','lead')]</field>
@@ -392,10 +392,12 @@
         </field>
     </record>
 
-    <!-- Replace the menu item for leads -->
-    <record id="crm.crm_lead_menu_leads" model="ir.ui.menu">
-        <field name="action" ref="custom_crm_lead_action"/>
-    </record>
+    <!-- Create a new menu item instead of trying to override an existing one -->
+    <menuitem id="menu_custom_crm_leads" 
+        name="Custom Leads"
+        parent="crm.crm_menu_root"
+        action="custom_crm_lead_action"
+        sequence="1"/>
 
     <!-- Add list view inheritance for opportunities -->
     <record id="crm_lead_opportunities_tree_view_inherit" model="ir.ui.view">
