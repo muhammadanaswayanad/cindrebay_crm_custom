@@ -512,135 +512,17 @@ class CRMLead(models.Model):
 class CrmLeadChangeRevenueWizard(models.TransientModel):
     _name = 'crm.lead.change.revenue.wizard'
     _description = 'Change Expected Revenue Wizard'
-        ('call_1', '1st Call'),
+
     new_expected_revenue = fields.Monetary(string="New Expected Revenue", required=True, currency_field='currency_id')
     currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
     next_collection_date = fields.Date(string="Next Collection Date", required=True)
-        ('followup_4', 'Followup 4'),
-    def action_change_revenue(self):,
+
+    def action_change_revenue(self):
         lead = self.env['crm.lead'].browse(self.env.context.get('active_id'))
+        if not lead:
+            raise ValidationError(_('No active lead found.'))
         lead.expected_revenue = self.new_expected_revenue
-        lead.activity_schedule(p 8'),
-            'mail.mail_activity_data_todo',
-            date_deadline=self.next_collection_date,
-            summary=_('Collect Pending Fee'),led', tracking=True)
-            note=_('Please collect the pending fee from the customer.')
-        )remarks = fields.Text(string="Call Remarks")
-        self.env['crm.lead.collection'].create({.call.history', 'lead_id', string='Call History')
-            'lead_id': lead.id,
-            'collection_date': self.next_collection_date,
-            'amount': self.new_expected_revenue,ks to history"""
-        })lf.ensure_one()
-        if self.call_status and self.call_status != 'not_called':
-class CrmLeadCollection(models.Model):story'].create({
-    _name = 'crm.lead.collection'd,
-    _description = 'CRM Lead Collection'_status,
-                'remarks': self.call_remarks,
-    lead_id = fields.Many2one('crm.lead', string="Lead", required=True)
-    collection_date = fields.Date(string="Collection Date", required=True)
-    amount = fields.Monetary(string="Amount", required=True)
-    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
-    collected_amount = fields.Monetary(string="Collected Amount", default=0.0)
-    balance = fields.Monetary(string="Balance", compute="_compute_balance", store=True)
-    state = fields.Selection([('pending', 'Pending'), ('collected', 'Collected')], string="State", default='pending')
-                'params': {
-    @api.depends('amount', 'collected_amount')
-    def _compute_balance(self):_('Call status and remarks have been saved to history.'),
-        for record in self:': False,
-            record.balance = record.amount - record.collected_amount
-            if record.balance <= 0:
-                record.state = 'collected'
-            else:
-                record.state = 'pending'
-            'tag': 'display_notification',
-    def action_enter_collected_amount(self):
-        view_id = self.env.ref('tijus_crm_custom.view_enter_collected_amount_form').id
-        return {'message': _('Please select a call status before logging.'),
-            'type': 'ir.actions.act_window',
-            'name': 'Enter Collected Amount',
-            'res_model': 'crm.lead.collection.enter.amount',
-            'view_mode': 'form',
-            'view_id': view_id,
-            'target': 'new',):
-            'context': {'default_collection_id': self.id},
-        }elf.ensure_one()
-        try:
-class CrmLeadCollectionEnterAmount(models.TransientModel):
-    _name = 'crm.lead.collection.enter.amount'rebay_crm_custom.mail_activity_type_walkin', raise_if_not_found=False)
-    _description = 'Enter Collected Amount'
-                # Fallback to a standard activity type if custom one not found
-    collection_id = fields.Many2one('crm.lead.collection', string="Collection", required=True))], limit=1)
-    collected_amount = fields.Monetary(string="Collected Amount", required=True, currency_field='currency_id')
-    currency_id = fields.Many2one('res.currency', string='Currency', related='collection_id.currency_id', readonly=True)
-                # Further fallback to any activity type if no Meeting type
-    def action_confirm(self): = self.env['mail.activity.type'].search([], limit=1)
-        self.collection_id.collected_amount += self.collected_amount
-        self.collection_id._compute_balance()
-        return {'type': 'ir.actions.act_window_close'}
-                    activity_type_id=activity_type.id,
-class CrmTeam(models.Model):_("Walk-in Visit"),
-    _inherit = "crm.team"_("Customer will visit the center. Please follow up accordingly."),
-    queue_line_ids = fields.One2many('crm.lead.queueing.line', 'team_id', store=True)
-                )
-    def create(self, vals):
-        res = super().create(vals)
-        self.set_queue_line_ids(res)client',
-        return resag': 'display_notification',
-                'params': {
-    def write(self, vals):': _('Walk-in Scheduled'),
-        res = super().write(vals)'A walk-in activity has been scheduled for this lead.'),
-        self.set_queue_line_ids(self)
-        return res  'type': 'success',
-                }
-    def set_queue_line_ids(self, recs):
-        for record in recs: e:
-            queue_line_users = record.queue_line_ids.mapped('salesperson_id.id')
-            for member in record.member_ids:
-                # Create queue line for the new member
-                if member.id not in queue_line_users:
-                    self.env['crm.lead.queueing.line'].create({
-                        'salesperson_id': member.id,
-                        'current_lead': False,
-                        'team_id': record.id
-                    })
-            # Remove queue lines for non existing members
-            record.queue_line_ids.filtered(lambda line: line.salesperson_id.id not in record.member_ids.ids).unlink()
-class CrmLeadChangeRevenueWizard(models.TransientModel):
-    @api.modelrm.lead.change.revenue.wizard'
-    def action_set_queue_line_ids_for_all_teams(self):
-        recs = self.env['crm.team'].search([])
-        self.set_queue_line_ids(recs)etary(string="New Expected Revenue", required=True, currency_field='currency_id')
-    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
-class CrmLeadQueueingLine(models.Model):tring="Next Collection Date", required=True)
-    _name = "crm.lead.queueing.line"
-    salesperson_id = fields.Many2one('res.users', string="Salesperson")
-    current_lead = fields.Many2one('crm.lead', domain=[('type','=','lead')]))
-    team_id = fields.Many2one('crm.team', check_company=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    create_date = fields.Datetime(string='Date', readonly=True)    user_id = fields.Many2one('res.users', string='User', default=lambda self: self.env.user.id)    remarks = fields.Text(string="Remarks")    ], string="Call Status", required=True)        ('followup_10', 'Followup 10'),        ('followup_9', 'Followup 9'),        ('followup_8', 'Followup 8'),        ('followup_7', 'Followup 7'),        ('followup_6', 'Followup 6'),        ('followup_5', 'Followup 5'),        ('followup_4', 'Followup 4'),        ('followup_3', 'Followup 3'),        ('followup_2', 'Followup 2'),        ('followup_1', 'Followup 1'),        ('call_1', '1st Call'),        ('not_called', 'Not Called'),    call_status = fields.Selection([    lead_id = fields.Many2one('crm.lead', string='Lead', required=True, ondelete='cascade')        _order = 'create_date desc'    _description = 'CRM Lead Call History'    _name = 'crm.lead.call.history'class CrmLeadCallHistory(models.Model):        lead.activity_schedule(
+        lead.activity_schedule(
             'mail.mail_activity_data_todo',
             date_deadline=self.next_collection_date,
             summary=_('Collect Pending Fee'),
@@ -652,51 +534,29 @@ class CrmLeadQueueingLine(models.Model):tring="Next Collection Date", required=T
             'amount': self.new_expected_revenue,
         })
 
-class CrmLeadCollection(models.Model):
-    _name = 'crm.lead.collection'
-    _description = 'CRM Lead Collection'
+class CrmLeadCallHistory(models.Model):
+    _name = 'crm.lead.call.history'
+    _description = 'CRM Lead Call History'
+    _order = 'create_date desc'
 
-    lead_id = fields.Many2one('crm.lead', string="Lead", required=True)
-    collection_date = fields.Date(string="Collection Date", required=True)
-    amount = fields.Monetary(string="Amount", required=True)
-    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
-    collected_amount = fields.Monetary(string="Collected Amount", default=0.0)
-    balance = fields.Monetary(string="Balance", compute="_compute_balance", store=True)
-    state = fields.Selection([('pending', 'Pending'), ('collected', 'Collected')], string="State", default='pending')
-
-    @api.depends('amount', 'collected_amount')
-    def _compute_balance(self):
-        for record in self:
-            record.balance = record.amount - record.collected_amount
-            if record.balance <= 0:
-                record.state = 'collected'
-            else:
-                record.state = 'pending'
-
-    def action_enter_collected_amount(self):
-        view_id = self.env.ref('tijus_crm_custom.view_enter_collected_amount_form').id
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Enter Collected Amount',
-            'res_model': 'crm.lead.collection.enter.amount',
-            'view_mode': 'form',
-            'view_id': view_id,
-            'target': 'new',
-            'context': {'default_collection_id': self.id},
-        }
-
-class CrmLeadCollectionEnterAmount(models.TransientModel):
-    _name = 'crm.lead.collection.enter.amount'
-    _description = 'Enter Collected Amount'
-
-    collection_id = fields.Many2one('crm.lead.collection', string="Collection", required=True)
-    collected_amount = fields.Monetary(string="Collected Amount", required=True, currency_field='currency_id')
-    currency_id = fields.Many2one('res.currency', string='Currency', related='collection_id.currency_id', readonly=True)
-
-    def action_confirm(self):
-        self.collection_id.collected_amount += self.collected_amount
-        self.collection_id._compute_balance()
-        return {'type': 'ir.actions.act_window_close'}
+    lead_id = fields.Many2one('crm.lead', string='Lead', required=True, ondelete='cascade')
+    call_status = fields.Selection([
+        ('not_called', 'Not Called'),
+        ('call_1', '1st Call'),
+        ('followup_1', 'Followup 1'),
+        ('followup_2', 'Followup 2'),
+        ('followup_3', 'Followup 3'),
+        ('followup_4', 'Followup 4'),
+        ('followup_5', 'Followup 5'),
+        ('followup_6', 'Followup 6'),
+        ('followup_7', 'Followup 7'),
+        ('followup_8', 'Followup 8'),
+        ('followup_9', 'Followup 9'),
+        ('followup_10', 'Followup 10'),
+    ], string="Call Status", required=True)
+    remarks = fields.Text(string="Remarks")
+    user_id = fields.Many2one('res.users', string='User', default=lambda self: self.env.user.id)
+    create_date = fields.Datetime(string='Date', readonly=True)
 
 class CrmTeam(models.Model):
     _inherit = "crm.team"
@@ -725,11 +585,6 @@ class CrmTeam(models.Model):
                     })
             # Remove queue lines for non existing members
             record.queue_line_ids.filtered(lambda line: line.salesperson_id.id not in record.member_ids.ids).unlink()
-
-    @api.model
-    def action_set_queue_line_ids_for_all_teams(self):
-        recs = self.env['crm.team'].search([])
-        self.set_queue_line_ids(recs)
 
 class CrmLeadQueueingLine(models.Model):
     _name = "crm.lead.queueing.line"
