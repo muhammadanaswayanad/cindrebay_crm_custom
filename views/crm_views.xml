@@ -86,6 +86,10 @@
                     <field name="currency_id" invisible="1"/>
                     <field name="mode_of_study" string="Mode of Study" required="0"/>
                     <field name="sales_objection"/>
+                    <!-- Add Call Status fields -->
+                    <field name="call_status"/>
+                    <field name="call_remarks" placeholder="Add remarks about this call..."/>
+                    <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
                     <field name="estimated_joining_date" string="Estimated Joining Date"/>
                     <field name="course_preferred" string="Course Preferred"/>
                     <field name="preferred_branch" string="Preferred Branch"/>
@@ -138,159 +142,130 @@
                 <attribute name="invisible">1</attribute>                
             </xpath>
 
-            <!-- <xpath expr="//notebook//page[@name='lead']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//notebook//page[@name='extra']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath> -->
-
-            <!-- <xpath expr="//group[@name='lead_info']//field[@name='email_from']" position="attributes">
-                <attribute name="required">1</attribute>
-            </xpath>s">
-            <xpath expr="//group[@name='opportunity_partner']//field[@name='email_from']" position="attributes"><group>
+            <xpath expr="//field[@name='source_id']" position="attributes">
                 <attribute name="required">1</attribute>
             </xpath>
-            <xpath expr="//group[@name='lead_info']//field[@name='phone']" position="attributes">        <field name="bank_account_name"/>
-                <attribute name="required">1</attribute>
-            </xpath>/>
-            <xpath expr="//group[@name='opportunity_partner']//field[@name='phone']" position="attributes">        <field name="bank_name"/>
-                <attribute name="required">1</attribute>
-            </xpath>ank_acc_holder_manual" invisible="relation_with_bank_acc_holder != 'other'"/>
-            <xpath expr="//field[@name='date_deadline']" position="attributes">    </group>
-                <attribute name="required">1</attribute>
-            </xpath> -->
 
+            <!-- Add Call History tab -->
             <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Call History">
+                    <field name="call_history_ids" readonly="1">
+                        <tree>
+                            <field name="create_date"/>
+                            <field name="call_status"/>
+                            <field name="user_id"/>
+                            <field name="remarks"/>
+                        </tree>
+                    </field>
+                </page>
+                
                 <page string="Banking &amp; Other Details">
                     <group>
                         <group>
                             <field name="aadhaar_no" />
-                            <field name="bank_account_name"/>model is updated -->
-                            <field name="bank_account_no"/>sition="after">
+                            <field name="bank_account_name"/>
+                            <field name="bank_account_no"/>
                             <field name="bank_ifsc_code"/>
-                            <field name="bank_name"/>d remarks about this call..."/>
-                            <field name="relation_with_bank_acc_holder"/>all" type="object" class="btn btn-primary btn-sm"/>
+                            <field name="bank_name"/>
+                            <field name="relation_with_bank_acc_holder"/>
                             <field name="relation_with_bank_acc_holder_manual" invisible="relation_with_bank_acc_holder != 'other'"/>
                         </group>
-                    </group>history tab now that model is updated -->
-                </page>age[@name='internal_notes']" position="before">
-            </xpath>tring="Call History">
-<field name="call_history_ids" readonly="1">
-            <xpath expr="//field[@name='source_id']" position="attributes">                        <tree>
-                <attribute name="required">1</attribute>
-            </xpath>
-        <field name="user_id"/>
-            <!-- Temporarily comment out call status fields until model is updated                             <field name="remarks"/>
-            <xpath expr="//field[@name='sales_objection']" position="after">
-                <field name="call_status"/>
-                <field name="call_remarks" placeholder="Add remarks about this call..."/>
-                <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
-            </xpath>
-            -->
-            >
-            <!-- Temporarily comment out call history tab until model is updated >
-            <xpath expr="//page[@name='internal_notes']" position="before">
-                <page string="Call History">
-                    <field name="call_history_ids" readonly="1">odel="ir.ui.view">
-                        <tree>
-                            <field name="create_date"/>m.team</field>
-                            <field name="call_status"/>am_view_form"/>
-                            <field name="user_id"/>
-                            <field name="remarks"/>de">
-                        </tree>e="0">
-                    </field>="queue_line_ids">
-                </page>e>
-            </xpath>     <field name="salesperson_id"/>
-            -->        <field name="current_lead" string="Last Assigned Lead"/>
-         </tree>
-        </field>                    </field>
-    </record>
-   </page>
-                </xpath>
-    <record id="view_crm_team_form_custom" model="ir.ui.view">    </field>
-        <field name="name">crm.team.form.custom</field>
-        <field name="model">crm.team</field>
-        <field name="inherit_id" ref="sales_team.crm_team_view_form"/> model="ir.ui.view">
-        <field name="arch" type="xml">
-            <xpath expr="//notebook" position="inside">field>
-                <page string="Queue Lines" invisible="0">an_view_leads"/>
-                    <field name="queue_line_ids">
-                        <tree>ibutes">
-                            <field name="salesperson_id"/>e="create">0</attribute>
-                            <field name="current_lead" string="Last Assigned Lead"/>
-                        </tree>
-                    </field>rd.sales_objection.raw_value" class="mt-2">
-ame="sales_objection" widget="badge" decoration-danger="sales_objection == 'stall'" decoration-warning="sales_objection == 'fees'" decoration-info="sales_objection == 'need'" decoration-success="sales_objection == 'trust'"/>
-                </page>                </div>
+                    </group>
+                </page>
             </xpath>
         </field>
     </record>
 
-    <record id="view_crm_lead_kanban_custom" model="ir.ui.view">    <record id="view_crm_stage_form_custom" model="ir.ui.view">
+    <record id="view_crm_team_form_custom" model="ir.ui.view">
+        <field name="name">crm.team.form.custom</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Queue Lines" invisible="0">
+                    <field name="queue_line_ids">
+                        <tree>
+                            <field name="salesperson_id"/>
+                            <field name="current_lead" string="Last Assigned Lead"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_kanban_custom" model="ir.ui.view">
         <field name="name">crm.lead.kanban.custom</field>
         <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>m_stage_form"/>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
         <field name="arch" type="xml">   
-            <xpath expr="//kanban" position="attributes">s_won']" position="before">
+            <xpath expr="//kanban" position="attributes">
                 <attribute name="create">0</attribute>
             </xpath> 
             <xpath expr="//div[hasclass('oe_kanban_content')]" position="inside">
                 <div t-if="record.sales_objection.raw_value" class="mt-2">
                     <field name="sales_objection" widget="badge" decoration-danger="sales_objection == 'stall'" decoration-warning="sales_objection == 'fees'" decoration-info="sales_objection == 'need'" decoration-success="sales_objection == 'trust'"/>
                 </div>
-            </xpath>ow Action to remove default_type as opportunity -->
-        </field>r.actions.act_window" id="crm.crm_lead_action_pipeline">
-    </record>ame="name">Pipeline</field>
-d name="res_model">crm.lead</field>
-    <record id="view_crm_stage_form_custom" model="ir.ui.view">        <field name="view_mode">kanban,tree,graph,pivot,form,calendar,activity</field>
-        <field name="name">crm.stage.form.custom</field>d>
+                <!-- Add call status to kanban cards -->
+                <div t-if="record.call_status.raw_value" class="mt-1">
+                    <span t-attf-class="badge #{record.call_status.raw_value == 'call_1' ? 'badge-info' : 
+                                            (record.call_status.raw_value in ['followup_1', 'followup_2', 'followup_3'] ? 'badge-success' : 
+                                            (record.call_status.raw_value in ['followup_4', 'followup_5', 'followup_6'] ? 'badge-warning' : 
+                                            (record.call_status.raw_value in ['followup_7', 'followup_8', 'followup_9', 'followup_10'] ? 'badge-danger' : '')))}">
+                        <field name="call_status"/>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_stage_form_custom" model="ir.ui.view">
+        <field name="name">crm.stage.form.custom</field>
         <field name="model">crm.stage</field>
-        <field name="inherit_id" ref="crm.crm_stage_form"/> 1}
+        <field name="inherit_id" ref="crm.crm_stage_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='is_won']" position="before">ef="crm.view_crm_case_opportunities_filter"/>
+            <xpath expr="//field[@name='is_won']" position="before">
                 <field name="probability"/>
             </xpath>
-        </field>on_crm_lead_import" model="ir.actions.act_window">
-    </record>ame="name">Import Leads</field>
-d name="res_model">crm.lead.import.wizard</field>
-        <field name="view_mode">form</field>
-    <!-- Override Window Action to remove default_type as opportunity -->        <field name="target">new</field>
+        </field>
+    </record>
+
+    <!-- Override Window Action to remove default_type as opportunity -->
     <record model="ir.actions.act_window" id="crm.crm_lead_action_pipeline">
         <field name="name">Pipeline</field>
-        <field name="res_model">crm.lead</field>e="Import Leads" parent="crm.crm_menu_root" action="tijus_crm_custom.action_crm_lead_import"/>
+        <field name="res_model">crm.lead</field>
         <field name="view_mode">kanban,tree,graph,pivot,form,calendar,activity</field>
         <field name="domain">[('type','=','opportunity')]</field>
         <field name="context">
-            {'search_default_assigned_to_me': 1}m.lead.import.wizard</field>
+            {'search_default_assigned_to_me': 1}
         </field>
-        <field name="search_view_id" ref="crm.view_crm_case_opportunities_filter"/>m string="Import Leads">
+        <field name="search_view_id" ref="crm.view_crm_case_opportunities_filter"/>
     </record>
-       <group>
-    <record id="action_crm_lead_import" model="ir.actions.act_window">                        <field name="csv_file" filename="csv_filename"/>
+
+    <record id="action_crm_lead_import" model="ir.actions.act_window">
         <field name="name">Import Leads</field>
         <field name="res_model">crm.lead.import.wizard</field>
-        <field name="view_mode">form</field>name="action_import" class="btn-primary"/>
-        <field name="target">new</field>el" class="btn-secondary" special="cancel"/>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
     </record>
-       </sheet>
-    <menuitem id="menu_crm_lead_import" name="Import Leads" parent="crm.crm_menu_root" action="tijus_crm_custom.action_crm_lead_import"/>        </form>
     
-    <record id="view_crm_lead_import_wizard_form" model="ir.ui.view"></record>
+    <menuitem id="menu_crm_lead_import" name="Import Leads" parent="crm.crm_menu_root" action="tijus_crm_custom.action_crm_lead_import"/>
+    
+    <record id="view_crm_lead_import_wizard_form" model="ir.ui.view">
         <field name="name">crm.lead.import.wizard.form</field>
-        <field name="model">crm.lead.import.wizard</field>l="ir.ui.view">
-        <field name="arch" type="xml">form</field>
-            <form string="Import Leads">hange.revenue.wizard</field>
+        <field name="model">crm.lead.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Leads">
                 <sheet>
-                    <group>g="Change Expected Revenue">
+                    <group>
                         <field name="csv_file" filename="csv_filename"/>
                     </group>
-                    <footer>ame="next_collection_date"/>
+                    <footer>
                         <button string="Import" type="object" name="action_import" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
-                    </footer>lass="btn-primary"/>
-                </sheet>tring="Cancel" class="btn-secondary" special="cancel"/>
-            </form>>
+                    </footer>
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -300,201 +275,213 @@ d name="res_model">crm.lead.import.wizard</field>
         <field name="arch" type="xml">
             <form string="Change Expected Revenue">
                 <group>
-                    <field name="new_expected_revenue"/>name="lead_id"/>
+                    <field name="new_expected_revenue"/>
                     <field name="next_collection_date"/>
                 </group>
-                <footer>ame="currency_id"/>
+                <footer>
                     <button string="Change" type="object" name="action_change_revenue" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
-        </field>w_crm_lead_collection_form" model="ir.ui.view">
-    </record>ame="name">crm.lead.collection.form</field>
-d name="model">crm.lead.collection</field>
-    <record id="view_crm_lead_collection_tree" model="ir.ui.view">        <field name="arch" type="xml">
+        </field>
+    </record>
+
+    <record id="view_crm_lead_collection_tree" model="ir.ui.view">
         <field name="name">crm.lead.collection.tree</field>
         <field name="model">crm.lead.collection</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="lead_id"/>          <field name="lead_id"/>
+                <field name="lead_id"/>
                 <field name="collection_date"/>
                 <field name="amount"/>
-                <field name="currency_id"/>e="state" widget="statusbar" statusbar_visible="pending,collected"/>
+                <field name="currency_id"/>
             </tree>
-        </field> </div>
-    </record>    <group>
-           <field name="collection_date"/>
-    <record id="view_crm_lead_collection_form" model="ir.ui.view">                        <field name="amount"/>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_collection_form" model="ir.ui.view">
         <field name="name">crm.lead.collection.form</field>
         <field name="model">crm.lead.collection</field>
         <field name="arch" type="xml">
             <form>
-                <sheet>  <footer>
-                    <div class="oe_title"> <button string="Enter Collected Amount" type="object" name="action_enter_collected_amount" class="btn-primary"/>
-                        <h1>ncel" class="btn-secondary" special="cancel"/>
-                            <field name="lead_id"/>>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="lead_id"/>
                         </h1>
                         <div>
                             <field name="state" widget="statusbar" statusbar_visible="pending,collected"/>
                         </div>
                     </div>
-                    <group>_collected_amount_form" model="ir.ui.view">
-                        <field name="collection_date"/>enter.collected.amount.form</field>
-                        <field name="amount"/>mount</field>
+                    <group>
+                        <field name="collection_date"/>
+                        <field name="amount"/>
                         <field name="currency_id"/>
                         <field name="collected_amount"/>
                         <field name="balance"/>
-                    </group> invisible="1"/>
-                    <footer>ame="collected_amount"/>
+                    </group>
+                    <footer>
                         <button string="Enter Collected Amount" type="object" name="action_enter_collected_amount" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
-                    </footer>btn-primary"/>
-                </sheet>tring="Cancel" class="btn-secondary" special="cancel"/>
-            </form>>
+                    </footer>
+                </sheet>
+            </form>
         </field>
     </record>
 
     <record id="view_enter_collected_amount_form" model="ir.ui.view">
-        <field name="name">enter.collected.amount.form</field>dow">
+        <field name="name">enter.collected.amount.form</field>
         <field name="model">crm.lead.collection.enter.amount</field>
         <field name="arch" type="xml">
-            <form string="Enter Collected Amount">orm</field>
+            <form string="Enter Collected Amount">
                 <group>
                     <field name="collection_id" invisible="1"/>
-                    <field name="collected_amount"/>ctions" parent="crm.crm_menu_root" action="action_crm_lead_collection"/>
+                    <field name="collected_amount"/>
                 </group>
-                <footer>tely separate tree view for leads -->
-                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>rm_lead_tree_view" model="ir.ui.view">
+                <footer>
+                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
-            </form>rity">99</field>
-        </field>="arch" type="xml">
-    </record>e string="Leads" default_order="create_date desc">
-   <!-- Pin important fields by making them always visible and bold -->
-    <record id="action_crm_lead_collection" model="ir.actions.act_window">                <field name="create_date" decoration-bf="1" optional="hide"/>
-        <field name="name">Partial Collections</field>
-        <field name="res_model">crm.lead.collection</field>ional="hide"/>
-        <field name="view_mode">tree,form</field>oration-bf="1" optional="hide"/>
-    </record>"1" optional="hide"/>
-   <field name="user_id" widget="many2one_avatar_user" decoration-bf="1" optional="hide"/>
-    <menuitem id="menu_crm_lead_collection" name="Partial Collections" parent="crm.crm_menu_root" action="action_crm_lead_collection"/>                <field name="team_id" decoration-bf="1" optional="hide"/>
+            </form>
+        </field>
+    </record>
 
-    <!-- Define a completely separate tree view for leads -->                <!-- Temporarily comment out call status field until model is updated 
-    <record id="custom_crm_lead_tree_view" model="ir.ui.view">ll_status == 'call_1'" 
-        <field name="name">custom.crm.lead.tree</field>llowup_1', 'followup_2', 'followup_3']" 
-        <field name="model">crm.lead</field>in ['followup_4', 'followup_5', 'followup_6']" 
-        <field name="priority">99</field>ll_status in ['followup_7', 'followup_8', 'followup_9', 'followup_10']" optional="hide"/>
+    <record id="action_crm_lead_collection" model="ir.actions.act_window">
+        <field name="name">Partial Collections</field>
+        <field name="res_model">crm.lead.collection</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_crm_lead_collection" name="Partial Collections" parent="crm.crm_menu_root" action="action_crm_lead_collection"/>
+
+    <!-- Define a completely separate tree view for leads -->
+    <record id="custom_crm_lead_tree_view" model="ir.ui.view">
+        <field name="name">custom.crm.lead.tree</field>
+        <field name="model">crm.lead</field>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <tree string="Leads" default_order="create_date desc">
                 <!-- Pin important fields by making them always visible and bold -->
                 <field name="create_date" decoration-bf="1" optional="hide"/>
                 <field name="contact_name" optional="hide"/>
                 <field name="phone" widget="phone" optional="hide"/>
-                <field name="email_from" widget="email" decoration-bf="1" optional="hide"/>">
+                <field name="email_from" widget="email" decoration-bf="1" optional="hide"/>
                 <field name="city" decoration-bf="1" optional="hide"/>
                 <field name="user_id" widget="many2one_avatar_user" decoration-bf="1" optional="hide"/>
                 <field name="team_id" decoration-bf="1" optional="hide"/>
                 <field name="source_id" optional="hide"/>
-                <!-- Temporarily comment out call status field until model is updated eld>
                 <field name="call_status" decoration-info="call_status == 'call_1'" 
-                       decoration-success="call_status in ['followup_1', 'followup_2', 'followup_3']" }),
+                       decoration-success="call_status in ['followup_1', 'followup_2', 'followup_3']" 
                        decoration-warning="call_status in ['followup_4', 'followup_5', 'followup_6']" 
                        decoration-danger="call_status in ['followup_7', 'followup_8', 'followup_9', 'followup_10']" optional="hide"/>
-                -->
-            </tree>="help" type="html">
-        </field>o_view_nocontent_smiling_face">
-    </record>ate a new lead
+            </tree>
+        </field>
+    </record>
 
-    <!-- Create a custom action for leads -->    <!-- Create a custom action for leads -->        </field>
-    <record id="custom_crm_lead_action" model="ir.actions.act_window">="ir.actions.act_window">
+    <!-- Create a custom action for leads -->
+    <record id="custom_crm_lead_action" model="ir.actions.act_window">
         <field name="name">Custom Leads View</field>
-        <field name="res_model">crm.lead</field>rride an existing one -->
-        <field name="view_mode">tree,kanban,form,calendar,graph,pivot</field>,calendar,graph,pivot</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">tree,kanban,form,calendar,graph,pivot</field>
         <field name="domain">[('type','=','lead')]</field>
-        <field name="context">{'default_type':'lead'}</field>ld>
+        <field name="context">{'default_type':'lead'}</field>
         <field name="view_ids" eval="[(5, 0, 0), 
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('custom_crm_lead_tree_view')}),': ref('custom_crm_lead_tree_view')}),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('custom_crm_lead_tree_view')}),
             (0, 0, {'view_mode': 'kanban'}),
-            (0, 0, {'view_mode': 'form'})]"/>>tunities -->
-        <field name="search_view_id" ref="crm.view_crm_case_leads_filter"/>.view_crm_case_leads_filter"/>iew_inherit" model="ir.ui.view">
+            (0, 0, {'view_mode': 'form'})]"/>
+        <field name="search_view_id" ref="crm.view_crm_case_leads_filter"/>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">smiling_face">ield>
+            <p class="o_view_nocontent_smiling_face">
                 Create a new lead
             </p>
-        </field> Set default order -->
-    </record>expr="//tree" position="attributes">
- name="default_order">create_date desc</attribute>
-    <!-- Create a new menu item instead of trying to override an existing one -->    <!-- Create a new menu item instead of trying to override an existing one -->            </xpath>
+        </field>
+    </record>
+
+    <!-- Create a new menu item instead of trying to override an existing one -->
     <menuitem id="menu_custom_crm_leads" 
         name="Custom Leads"
-        parent="crm.crm_menu_root"u_root"
-        action="custom_crm_lead_action"tion"hese views until model is updated 
-        sequence="1"/>ir.ui.view">
-tory.form</field>
-    <!-- Add list view inheritance for opportunities -->    <!-- Add list view inheritance for opportunities -->        <field name="model">crm.lead.call.history</field>
-    <record id="crm_lead_opportunities_tree_view_inherit" model="ir.ui.view">="ir.ui.view">
+        parent="crm.crm_menu_root"
+        action="custom_crm_lead_action"
+        sequence="1"/>
+
+    <!-- Add list view inheritance for opportunities -->
+    <record id="crm_lead_opportunities_tree_view_inherit" model="ir.ui.view">
         <field name="name">crm.lead.opportunities.tree.inherit</field>
         <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>l.history</field>m_case_tree_view_oppor"/>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="arch" type="xml">
-            <!-- Set default order -->>
-            <xpath expr="//tree" position="attributes">nly="1"/>
-                <attribute name="default_order">create_date desc</attribute></attribute>nly="1"/>
+            <!-- Set default order -->
+            <xpath expr="//tree" position="attributes">
+                <attribute name="default_order">create_date desc</attribute>
             </xpath>
-        </field>crm_menu_root"</group>
-    </record>action_crm_lead_call_history"     <group>
-nce="15"/>  <field name="remarks" readonly="1"/>
-    <!-- Temporarily comment out these views until model is updated     <!-- Temporarily comment out these views until model is updated                         </group>
+        </field>
+    </record>
+
+    <!-- Add Call History views -->
     <record id="view_crm_lead_call_history_form" model="ir.ui.view">
-        <field name="name">crm.lead.call.history.form</field>ui.view">
-        <field name="model">crm.lead.call.history</field>t</field>
+        <field name="name">crm.lead.call.history.form</field>
+        <field name="model">crm.lead.call.history</field>
         <field name="arch" type="xml">
-            <form string="Call History">crm.crm_case_tree_view_oppor"/>">
+            <form string="Call History">
                 <sheet>
-                    <group>fault order -->oup>m_lead_call_history_tree" model="ir.ui.view">
-                        <group>tree" position="attributes">oup>crm.lead.call.history.tree</field>
-                            <field name="lead_id" readonly="1"/>="default_order">create_date desc</attribute>eld name="lead_id" readonly="1"/>.lead.call.history</field>
+                    <group>
+                        <group>
+                            <field name="lead_id" readonly="1"/>
                             <field name="call_status" readonly="1"/>
                             <field name="user_id" readonly="1"/>
                             <field name="create_date" readonly="1"/>
                         </group>
-                        <group> these views until model is updated _status"/>
-                            <field name="remarks" readonly="1"/>all_history_form" model="ir.ui.view">eld name="remarks" readonly="1"/>er_id"/>
+                        <group>
+                            <field name="remarks" readonly="1"/>
                         </group>
-                    </group>lead.call.history</field>
-                </sheet>ype="xml">
-            </form>="Call History">
-        </field>eet>
-    </record>    <group>
-               <group>omment out search filters for call status until model is updated 
-    <record id="view_crm_lead_call_history_tree" model="ir.ui.view">                        <field name="lead_id" readonly="1"/><record id="view_crm_lead_call_history_tree" model="ir.ui.view"><record id="view_crm_lead_filter_call_status" model="ir.ui.view">
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_crm_lead_call_history_tree" model="ir.ui.view">
         <field name="name">crm.lead.call.history.tree</field>
-        <field name="model">crm.lead.call.history</field>"/>
-        <field name="arch" type="xml">donly="1"/>
+        <field name="model">crm.lead.call.history</field>
+        <field name="arch" type="xml">
             <tree string="Call History">
-                <field name="lead_id"/> position="after">
-                <field name="create_date"/>="remarks" readonly="1"/>e"/>s"/>
+                <field name="lead_id"/>
+                <field name="create_date"/>
                 <field name="call_status"/>
-                <field name="user_id"/>r">
+                <field name="user_id"/>
                 <field name="remarks"/>
-            </tree>tatus', '=', 'not_called')]"/>
-        </field>tring="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
-    </record>r string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
-    -->
-cord id="view_crm_lead_call_history_tree" model="ir.ui.view">
-    <!-- Temporarily comment out search filters for call status until model is updated         <field name="name">crm.lead.call.history.tree</field>    <!-- Temporarily comment out search filters for call status until model is updated     <!-- Temporarily comment out search filters for call status until model is updated     </record>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Add action for call history -->
+    <record id="action_crm_lead_call_history" model="ir.actions.act_window">
+        <field name="name">Call History</field>
+        <field name="res_model">crm.lead.call.history</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_crm_lead_call_history" 
+        name="Call History"
+        parent="crm.crm_menu_root"
+        action="action_crm_lead_call_history"
+        sequence="15"/>
+
+    <!-- Add search view for call status -->
     <record id="view_crm_lead_filter_call_status" model="ir.ui.view">
-        <field name="name">crm.lead.filter.call.status</field>       <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>        <field name="arch" type="xml">            <xpath expr="//field[@name='tag_ids']" position="after">                <field name="call_status"/>            </xpath>            <xpath expr="//filter[@name='won']" position="after">                <separator/>                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>                <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>            </xpath>        </field>    </record>    --></odoo>        <field name="name">crm.lead.filter.call.status</field>        <field name="model">crm.lead</field>        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>        <field name="arch" type="xml">            <xpath expr="//field[@name='tag_ids']" position="after">                <field name="call_status"/>            </xpath>            <xpath expr="//filter[@name='won']" position="after">                <separator/>                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>                <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>            </xpath>        </field>    </record></odoo>        <field name="model">crm.lead</field>        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>        <field name="arch" type="xml">            <xpath expr="//field[@name='tag_ids']" position="after">                <field name="call_status"/>            </xpath>            <xpath expr="//filter[@name='won']" position="after">                <separator/>                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>                <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>            </xpath>        </field>    </record>    --></odoo>            <tree string="Call History">                <field name="lead_id"/>                <field name="create_date"/>                <field name="call_status"/>                <field name="user_id"/>                <field name="remarks"/>            </tree>        </field>    </record>    -->    <!-- Temporarily comment out search filters for call status until model is updated     <record id="view_crm_lead_filter_call_status" model="ir.ui.view">        <field name="name">crm.lead.filter.call.status</field>        <field name="model">crm.lead</field>        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>        <field name="arch" type="xml">
-        <field name="model">crm.lead</field>fter">
+        <field name="name">crm.lead.filter.call.status</field>
+        <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='tag_ids']" position="after">e='won']" position="after">
+            <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="call_status"/>
-            </xpath> name="not_called" domain="[('call_status', '=', 'not_called')]"/>
-            <xpath expr="//filter[@name='won']" position="after">ter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
-                <separator/>omain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
+            </xpath>
+            <xpath expr="//filter[@name='won']" position="after">
+                <separator/>
                 <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
                 <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
                 <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
             </xpath>
-        </field>    </record>    --></odoo>
+        </field>
+    </record>
+</odoo>
