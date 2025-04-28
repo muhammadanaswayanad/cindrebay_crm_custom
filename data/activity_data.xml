@@ -6,7 +6,6 @@
             <field name="name">Walk-in Visit</field>
             <field name="icon">fa-user</field>
             <field name="sequence">10</field>
-            <field name="res_model">crm.lead</field>
             <field name="summary">Student visited the center</field>
             <field name="decoration_type">warning</field>
         </record>
