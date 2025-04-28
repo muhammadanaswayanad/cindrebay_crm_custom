@@ -599,3 +599,46 @@ class CrmLeadCollection(models.Model):
             'target': 'new',
             'context': {'default_collection_id': self.id},
         }
+
+class CrmLeadCollectionEnterAmount(models.TransientModel):
+    _name = 'crm.lead.collection.enter.amount'
+    _description = 'Enter Collected Amount for Lead Collection'
+
+    collection_id = fields.Many2one('crm.lead.collection', string="Collection", required=True)
+    collected_amount = fields.Monetary(string="Collected Amount", required=True)
+    currency_id = fields.Many2one('res.currency', related='collection_id.currency_id', readonly=True)
+
+    def action_confirm(self):
+        if not self.collection_id:
+            raise ValidationError(_('No collection specified.'))
+        
+        # Update the collected amount
+        new_collected_amount = self.collection_id.collected_amount + self.collected_amount
+        self.collection_id.write({
+            'collected_amount': new_collected_amount
+        })
+        
+        # Create activity for the lead
+        if self.collection_id.lead_id:
+            lead = self.collection_id.lead_id
+            lead.activity_schedule(
+                'mail.mail_activity_data_todo',
+                summary=_('Payment Collection'),
+                note=_('Payment of %s collected. Balance: %s') % (
+                    format(self.collected_amount, '.2f'),
+                    format(self.collection_id.balance, '.2f')
+                ),
+                user_id=lead.user_id.id if lead.user_id else self.env.user.id
+            )
+        
+        # Return success message
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Success'),
+                'message': _('Payment collected successfully'),
+                'sticky': False,
+                'type': 'success',
+            }
+        }
