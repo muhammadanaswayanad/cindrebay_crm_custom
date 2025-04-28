@@ -360,10 +360,25 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
         <field name="arch" type="xml">
-            <!-- Add field instead of trying to locate it -->
-            <field name="phone" position="after">
-                <field name="malayalee_status" invisible="1"/>
-            </field>
+            <!-- Remove malayalee_status field -->
+            <!-- Rearrange the fields in the leads view -->
+            <xpath expr="//tree" position="attributes">
+                <attribute name="default_order">create_date desc</attribute>
+            </xpath>
+            
+            <xpath expr="//field[@name='name']" position="replace">
+            </xpath>
+            
+            <xpath expr="//tree" position="inside">
+                <field name="create_date"/>
+                <field name="contact_name"/>
+                <field name="phone" widget="phone"/>
+                <field name="email_from" widget="email"/>
+                <field name="city"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="team_id"/>
+                <field name="source_id"/>
+            </xpath>
         </field>
     </record>
 
@@ -373,10 +388,9 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="arch" type="xml">
-            <!-- Add field instead of trying to locate it -->
-            <field name="expected_revenue" position="after">
-                <field name="malayalee_status" invisible="1"/>
-            </field>
+            <!-- Remove malayalee_status field -->
+            <xpath expr="//field[@name='malayalee_status']" position="replace">
+            </xpath>
         </field>
     </record>
 
