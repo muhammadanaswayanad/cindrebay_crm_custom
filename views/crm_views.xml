@@ -41,6 +41,7 @@
                 <button name="action_create_sale_order" string="Confirm Sale" type="object" class="btn-primary" title="Confirm Sale" invisible="not active or not partner_id or not course_id or not is_won or sale_order_id or context.get('type', '') == 'lead'"/>
                 <button name="action_change_expected_revenue" type="object" class="oe_highlight" string="Change Expected Revenue" invisible="not is_won"/>
                 <button name="action_open_collection_form" type="object" class="oe_highlight" string="Collect Payment" invisible="not sale_order_id"/>
+                <button name="schedule_walkin" string="Schedule Walk-in" type="object" class="oe_highlight" icon="fa-user"/>
             </xpath>
 
             <xpath expr="//widget[@name='web_ribbon']" position="before">
