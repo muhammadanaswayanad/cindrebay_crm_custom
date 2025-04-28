@@ -89,7 +89,9 @@
                     <!-- Add Call Status fields -->
                     <field name="call_status"/>
                     <field name="call_remarks" placeholder="Add remarks about this call..."/>
-                    <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
+                    <div style="text-align: right;">
+                        <button name="log_call" string="Log Call" type="object" class="btn btn-primary btn-sm"/>
+                    </div>
                     <br/>
                     <field name="estimated_joining_date" string="Estimated Joining Date"/>
                     <field name="course_preferred" string="Course Preferred"/>
