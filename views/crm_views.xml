@@ -476,12 +476,40 @@
             <xpath expr="//field[@name='tag_ids']" position="after">
                 <field name="call_status"/>
             </xpath>
-            <xpath expr="//filter[@name='won']" position="after">
+            <!-- Changed this xpath to target a more reliable element --> -->ment -->
+            <xpath expr="//filter[@name='assigned_to_me']" position="after">igned_to_me']" position="after">
                 <separator/>
-                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
+                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>')]"/>
                 <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
-                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
-            </xpath>
-        </field>
-    </record>
-</odoo>
+                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>ter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
+            </xpath>>ath>
+        </field>ld>
+    </record>ecord>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</odoo></record>    </field>        </search>            </group>                <filter name="groupby_country" string="Country" domain="[]" context="{'group_by': 'country_id'}"/>                <filter name="group_source" string="Source" domain="[]" context="{'group_by': 'source_id'}"/>                <filter name="group_stage" string="Stage" domain="[]" context="{'group_by': 'stage_id'}"/>                <filter name="group_user" string="Salesperson" domain="[]" context="{'group_by': 'user_id'}"/>            <group expand="0" string="Group By">            <!-- Standard groupby options -->            <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>            <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>            <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>            <!-- Include call status filters -->            <field name="call_status"/>            <field name="tag_ids"/>            <field name="name" string="Lead" filter_domain="['|', ('name', 'ilike', self), ('contact_name', 'ilike', self)]"/>            <!-- Include all existing filters from standard view -->        <search string="Search Leads">    <field name="arch" type="xml">    <field name="model">crm.lead</field>    <field name="name">custom.crm.lead.search</field><record id="custom_view_crm_case_leads_filter" model="ir.ui.view">    <!-- Alternative full search view replacement if needed --></odoo></odoo>
