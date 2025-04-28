@@ -360,15 +360,15 @@
         <field name="model">crm.lead</field>
         <field name="arch" type="xml">
             <tree string="Leads" sample="1" default_order="create_date desc">
-                <field name="create_date"/>ew tree definition without xpaths -->
+                <field name="create_date"/>
                 <field name="contact_name"/>
-                <field name="phone" widget="phone"/>esc">
-                <field name="email_from" widget="email"/><field name="create_date"/>
-                <field name="city"/>        <field name="contact_name"/>
+                <field name="phone" widget="phone"/>
+                <field name="email_from" widget="email"/>
+                <field name="city"/>
                 <field name="user_id" widget="many2one_avatar_user"/>
-                <field name="team_id"/>"email"/>
+                <field name="team_id"/>
                 <field name="source_id"/>
-            </tree>t="many2one_avatar_user"/>
+            </tree>
         </field>
     </record>
 
@@ -376,18 +376,22 @@
     <record id="crm.crm_lead_all_leads" model="ir.actions.act_window">
         <field name="name">Leads</field>
         <field name="res_model">crm.lead</field>
-        <field name="view_mode">tree,kanban,graph,pivot,form,calendar,activity</field>inheritance for opportunities -->
-        <field name="domain">[('type','=','lead')]</field>lead_opportunities_tree_view_inherit" model="ir.ui.view">
-        <field name="view_id" ref="crm_case_tree_view_leads_custom"/>ame="name">crm.lead.opportunities.tree.inherit</field>
-        <field name="search_view_id" ref="crm.view_crm_case_leads_filter"/>d name="model">crm.lead</field>
-    </record>        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="view_mode">tree,kanban,graph,pivot,form,calendar,activity</field>
+        <field name="domain">[('type','=','lead')]</field>
+        <field name="view_id" ref="crm_case_tree_view_leads_custom"/>
+        <field name="search_view_id" ref="crm.view_crm_case_leads_filter"/>
+    </record>
 
     <!-- Add list view inheritance for opportunities -->
     <record id="crm_lead_opportunities_tree_view_inherit" model="ir.ui.view">
-        <field name="name">crm.lead.opportunities.tree.inherit</field>er">create_date desc</attribute>
+        <field name="name">crm.lead.opportunities.tree.inherit</field>
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="arch" type="xml">
-            <!-- Safely remove malayalee_status field if it exists -->
-            <xpath expr="//field[@name='malayalee_status']" position="replace">            </xpath>                        <!-- If the above fails, this will ensure we don't have the field -->            <xpath expr="//tree" position="attributes">                <attribute name="default_order">create_date desc</attribute>            </xpath>        </field>    </record>
+            <!-- Set default order -->
+            <xpath expr="//tree" position="attributes">
+                <attribute name="default_order">create_date desc</attribute>
+            </xpath>
+        </field>
+    </record>
 </odoo>
