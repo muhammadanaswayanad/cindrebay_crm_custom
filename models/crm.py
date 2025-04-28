@@ -648,32 +648,15 @@ class CrmLeadWalkinWizard(models.TransientModel):
                         date_deadline=self.walkin_date
                     )
                     
-                # Show a transient messageotification and close wizard
-                self.env['bus.bus']._sendone(
-                    self.env.user.partner_id,
-                    'snackbar_notification',play_notification',
-                    {
-                        'title': _('Success'),
-                        'message': _('A walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),
-                        'bus_type': 'success',
-                    }   'type': 'success',
-                )       'next': {'type': 'ir.actions.act_window_close'},
-                
-                # Close wizard immediately
-                return {'type': 'ir.actions.act_window_close'}
-                
-            except Exception as e:.actions.client',
-                return {tion',
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',r'),
-                    'params': {,
-                        'title': _('Error'),   'sticky': False,
-                        'message': str(e),       'type': 'danger',
-                        'sticky': False,ct_window_close'},
-
-
-
-
-        return {'type': 'ir.actions.act_window_close'}                }                    }                        'type': 'danger',                    }
+                # Show success notification
+                return {
+                    'type': 'ir.actions.act_window_close',
                 }
+                
+            except Exception as e:
+                # Show error notification
+                return {
+                    'type': 'ir.actions.act_window_close',
+                }
+        
         return {'type': 'ir.actions.act_window_close'}
