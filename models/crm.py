@@ -668,3 +668,55 @@ class CrmLeadCollection(models.Model):
             'target': 'new',
             'context': {'default_collection_id': self.id},
         }
+
+    # Add call status tracking fields
+    call_status = fields.Selection([
+        ('not_called', 'Not Called'),
+        ('call_1', '1st Call'),
+        ('followup_1', 'Followup 1'),
+        ('followup_2', 'Followup 2'),
+        ('followup_3', 'Followup 3'),
+        ('followup_4', 'Followup 4'),
+        ('followup_5', 'Followup 5'),
+        ('followup_6', 'Followup 6'),
+        ('followup_7', 'Followup 7'),
+        ('followup_8', 'Followup 8'),
+        ('followup_9', 'Followup 9'),
+        ('followup_10', 'Followup 10'),
+    ], string="Call Status", default='not_called', tracking=True)
+
+    call_remarks = fields.Text(string="Call Remarks")
+    call_history_ids = fields.One2many('crm.lead.call.history', 'lead_id', string='Call History')
+
+    def log_call(self):
+        """Log the current call status and remarks to history"""
+        self.ensure_one()
+        if self.call_status and self.call_status != 'not_called':
+            self.env['crm.lead.call.history'].create({
+                'lead_id': self.id,
+                'call_status': self.call_status,
+                'remarks': self.call_remarks,
+                'user_id': self.env.user.id,
+            })
+            # Clear remarks field after logging
+            self.call_remarks = False
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Call Logged'),
+                    'message': _('Call status and remarks have been saved to history.'),
+                    'sticky': False,
+                    'type': 'success',
+                }
+            }
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Warning'),
+                'message': _('Please select a call status before logging.'),
+                'sticky': False,
+                'type': 'warning',
+            }
+        }
