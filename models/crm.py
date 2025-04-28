@@ -441,48 +441,18 @@ class CRMLead(models.Model):
         }
 
     def schedule_walkin(self):
-        """Schedule a walk-in activity"""
+        """Open the wizard to schedule a walk-in activity"""
         self.ensure_one()
-        try:
-            # Try to find the walk-in activity type
-            activity_type = self.env.ref('cindrebay_crm_custom.mail_activity_type_walkin', raise_if_not_found=False)
-            if not activity_type:
-                # Fallback to a standard activity type if custom one not found
-                activity_type = self.env['mail.activity.type'].search([('name', '=', 'Meeting')], limit=1)
-            
-            if not activity_type:
-                # Further fallback to any activity type if no Meeting type
-                activity_type = self.env['mail.activity.type'].search([], limit=1)
-                
-            if activity_type:
-                self.activity_schedule(
-                    activity_type_id=activity_type.id,
-                    summary=_("Walk-in Visit"),
-                    note=_("Customer will visit the center. Please follow up accordingly."),
-                    date_deadline=fields.Date.today()
-                )
-                
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Walk-in Scheduled'),
-                    'message': _('A walk-in activity has been scheduled for this lead.'),
-                    'sticky': False,
-                    'type': 'success',
-                }
-            }
-        except Exception as e:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Error'),
-                    'message': str(e),
-                    'sticky': False,
-                    'type': 'danger',
-                }
-            }
+        return {
+            'name': _('Schedule Walk-in'),
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'crm.lead.walkin.wizard',
+            'target': 'new',
+            'context': {
+                'default_lead_id': self.id,
+            },
+        }
 
 class CrmLeadChangeRevenueWizard(models.TransientModel):
     _name = 'crm.lead.change.revenue.wizard'
@@ -642,3 +612,61 @@ class CrmLeadCollectionEnterAmount(models.TransientModel):
                 'type': 'success',
             }
         }
+
+class CrmLeadWalkinWizard(models.TransientModel):
+    _name = 'crm.lead.walkin.wizard'
+    _description = 'Schedule Walk-in Wizard'
+
+    lead_id = fields.Many2one('crm.lead', string='Lead', required=True)
+    walkin_date = fields.Date(string="Walk-in Date", required=True, default=fields.Date.today)
+    notes = fields.Text(string="Notes", help="Additional notes about the walk-in")
+
+    def action_schedule_walkin(self):
+        self.ensure_one()
+        if self.lead_id:
+            try:
+                # Try to find the walk-in activity type
+                activity_type = self.env.ref('cindrebay_crm_custom.mail_activity_type_walkin', raise_if_not_found=False)
+                if not activity_type:
+                    # Fallback to a standard activity type if custom one not found
+                    activity_type = self.env['mail.activity.type'].search([('name', '=', 'Meeting')], limit=1)
+                
+                if not activity_type:
+                    # Further fallback to any activity type if no Meeting type
+                    activity_type = self.env['mail.activity.type'].search([], limit=1)
+                    
+                if activity_type:
+                    note = _("Customer will visit the center on %s. %s") % (
+                        self.walkin_date.strftime('%d/%m/%Y'),
+                        self.notes or ''
+                    )
+                    
+                    self.lead_id.activity_schedule(
+                        activity_type_id=activity_type.id,
+                        summary=_("Walk-in Visit"),
+                        note=note.strip(),
+                        date_deadline=self.walkin_date
+                    )
+                    
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Walk-in Scheduled'),
+                        'message': _('A walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),
+                        'sticky': False,
+                        'type': 'success',
+                    }
+                }
+            except Exception as e:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Error'),
+                        'message': str(e),
+                        'sticky': False,
+                        'type': 'danger',
+                    }
+                }
+        return {'type': 'ir.actions.act_window_close'}

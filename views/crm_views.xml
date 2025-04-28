@@ -487,4 +487,22 @@
             </filter>
         </field>
     </record>
+
+    <record id="view_crm_lead_walkin_wizard_form" model="ir.ui.view">
+        <field name="name">crm.lead.walkin.wizard.form</field>
+        <field name="model">crm.lead.walkin.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Schedule Walk-in">
+                <group>
+                    <field name="lead_id" invisible="1"/>
+                    <field name="walkin_date"/>
+                    <field name="notes" placeholder="Any additional notes about the walk-in visit..."/>
+                </group>
+                <footer>
+                    <button string="Schedule" name="action_schedule_walkin" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 </odoo>
