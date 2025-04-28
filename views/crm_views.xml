@@ -473,16 +473,15 @@
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='tag_ids']" position="after">
+            <field name="tag_ids" position="after">
                 <field name="call_status"/>
-            </xpath>
-            <!-- Use a more basic approach - add at the beginning of the search view -->
-            <xpath expr="//search" position="inside">
+            </field>
+            <filter name="assigned_to_me" position="after">
                 <separator/>
                 <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
                 <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
                 <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
-            </xpath>
+            </filter>
         </field>
     </record>
 </odoo>
