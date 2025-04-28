@@ -648,25 +648,32 @@ class CrmLeadWalkinWizard(models.TransientModel):
                         date_deadline=self.walkin_date
                     )
                     
-                return {
+                # Show a transient messageotification and close wizard
+                self.env['bus.bus']._sendone(
+                    self.env.user.partner_id,
+                    'snackbar_notification',play_notification',
+                    {
+                        'title': _('Success'),
+                        'message': _('A walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),
+                        'bus_type': 'success',
+                    }   'type': 'success',
+                )       'next': {'type': 'ir.actions.act_window_close'},
+                
+                # Close wizard immediately
+                return {'type': 'ir.actions.act_window_close'}
+                
+            except Exception as e:.actions.client',
+                return {tion',
                     'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Walk-in Scheduled'),
-                        'message': _('A walk-in activity has been scheduled for this lead on %s.') % self.walkin_date.strftime('%d/%m/%Y'),
-                        'sticky': False,
-                        'type': 'success',
-                    }
-                }
-            except Exception as e:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Error'),
-                        'message': str(e),
-                        'sticky': False,
-                        'type': 'danger',
-                    }
+                    'tag': 'display_notification',r'),
+                    'params': {,
+                        'title': _('Error'),   'sticky': False,
+                        'message': str(e),       'type': 'danger',
+                        'sticky': False,ct_window_close'},
+
+
+
+
+        return {'type': 'ir.actions.act_window_close'}                }                    }                        'type': 'danger',                    }
                 }
         return {'type': 'ir.actions.act_window_close'}
