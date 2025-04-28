@@ -361,14 +361,15 @@
         <field name="priority">99</field>
         <field name="arch" type="xml">
             <tree string="Leads" default_order="create_date desc">
-                <field name="create_date"/>
-                <field name="contact_name"/>
-                <field name="phone" widget="phone"/>
-                <field name="email_from" widget="email"/>
-                <field name="city"/>
-                <field name="user_id" widget="many2one_avatar_user"/>
-                <field name="team_id"/>
-                <field name="source_id"/>
+                <!-- Pin important fields by making them always visible and bold -->
+                <field name="create_date" decoration-bf="1" optional="hide"/>
+                <field name="contact_name" optional="hide"/>
+                <field name="phone" widget="phone" optional="hide"/>
+                <field name="email_from" widget="email" decoration-bf="1" optional="hide"/>
+                <field name="city" decoration-bf="1" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user" decoration-bf="1" optional="hide"/>
+                <field name="team_id" decoration-bf="1" optional="hide"/>
+                <field name="source_id" optional="hide"/>
             </tree>
         </field>
     </record>
