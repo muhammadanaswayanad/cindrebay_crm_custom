@@ -669,7 +669,12 @@ class CrmLeadCollection(models.Model):
             'context': {'default_collection_id': self.id},
         }
 
-    # Add call status tracking fields
+class CrmLeadCallHistory(models.Model):
+    _name = 'crm.lead.call.history'
+    _description = 'CRM Lead Call History'
+    _order = 'create_date desc'
+
+    lead_id = fields.Many2one('crm.lead', string='Lead', required=True, ondelete='cascade')
     call_status = fields.Selection([
         ('not_called', 'Not Called'),
         ('call_1', '1st Call'),
@@ -683,40 +688,74 @@ class CrmLeadCollection(models.Model):
         ('followup_8', 'Followup 8'),
         ('followup_9', 'Followup 9'),
         ('followup_10', 'Followup 10'),
-    ], string="Call Status", default='not_called', tracking=True)
+    ], string="Call Status", required=True)
+    remarks = fields.Text(string="Remarks")
+    user_id = fields.Many2one('res.users', string='User', default=lambda self: self.env.user.id)
+    create_date = fields.Datetime(string='Date', readonly=True)
 
-    call_remarks = fields.Text(string="Call Remarks")
-    call_history_ids = fields.One2many('crm.lead.call.history', 'lead_id', string='Call History')
+class CrmTeam(models.Model):
+    _inherit = "crm.team"
+    queue_line_ids = fields.One2many('crm.lead.queueing.line', 'team_id', store=True)
 
-    def log_call(self):
-        """Log the current call status and remarks to history"""
-        self.ensure_one()
-        if self.call_status and self.call_status != 'not_called':
-            self.env['crm.lead.call.history'].create({
-                'lead_id': self.id,
-                'call_status': self.call_status,
-                'remarks': self.call_remarks,
-                'user_id': self.env.user.id,
-            })
-            # Clear remarks field after logging
-            self.call_remarks = False
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Call Logged'),
-                    'message': _('Call status and remarks have been saved to history.'),
-                    'sticky': False,
-                    'type': 'success',
-                }
-            }
+    def create(self, vals):
+        res = super().create(vals)
+        self.set_queue_line_ids(res)
+        return res
+    
+    def write(self, vals):
+        res = super().write(vals)
+        self.set_queue_line_ids(self)
+        return res
+    
+    def set_queue_line_ids(self, recs):
+        for record in recs:
+            queue_line_users = record.queue_line_ids.mapped('salesperson_id.id')
+            for member in record.member_ids:
+                # Create queue line for the new member
+                if member.id not in queue_line_users:
+                    self.env['crm.lead.queueing.line'].create({
+                        'salesperson_id': member.id,
+                        'current_lead': False,
+                        'team_id': record.id
+                    })
+            # Remove queue lines for non existing members
+            record.queue_line_ids.filtered(lambda line: line.salesperson_id.id not in record.member_ids.ids).unlink()
+
+class CrmLeadQueueingLine(models.Model):
+    _name = "crm.lead.queueing.line"
+    salesperson_id = fields.Many2one('res.users', string="Salesperson")
+    current_lead = fields.Many2one('crm.lead', domain=[('type','=','lead')])
+    team_id = fields.Many2one('crm.team', check_company=True)
+
+class CrmLeadCollection(models.Model):
+    _name = 'crm.lead.collection'
+    _description = 'CRM Lead Collection'
+
+    lead_id = fields.Many2one('crm.lead', string="Lead", required=True)
+    collection_date = fields.Date(string="Collection Date", required=True)
+    amount = fields.Monetary(string="Amount", required=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
+    collected_amount = fields.Monetary(string="Collected Amount", default=0.0)
+    balance = fields.Monetary(string="Balance", compute="_compute_balance", store=True)
+    state = fields.Selection([('pending', 'Pending'), ('collected', 'Collected')], string="State", default='pending')
+
+    @api.depends('amount', 'collected_amount')
+    def _compute_balance(self):
+        for record in self:
+            record.balance = record.amount - record.collected_amount
+            if record.balance <= 0:
+                record.state = 'collected'
+            else:
+                record.state = 'pending'
+
+    def action_enter_collected_amount(self):
+        view_id = self.env.ref('tijus_crm_custom.view_enter_collected_amount_form').id
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Warning'),
-                'message': _('Please select a call status before logging.'),
-                'sticky': False,
-                'type': 'warning',
-            }
+            'type': 'ir.actions.act_window',
+            'name': 'Enter Collected Amount',
+            'res_model': 'crm.lead.collection.enter.amount',
+            'view_mode': 'form',
+            'view_id': view_id,
+            'target': 'new',
+            'context': {'default_collection_id': self.id},
         }
