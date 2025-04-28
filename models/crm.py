@@ -388,126 +388,57 @@ class CRMLead(models.Model):
             'tag': 'reload',
         }
 
-    @api.model
-    def message_new(self, msg_dict, custom_values=None):
-        if custom_values is None:
-            custom_values = {}
-        
-        # Extract information from the message body
-        if msg_dict.get('body'):
-            body = msg_dict['body']
-            
-            # Clean HTML tags and convert <br> to newlines
-            import re
-            from html import unescape
-            
-            # Remove HTML tags but keep the content
-            body = re.sub(r'<[^>]+>', '\n', body)
-            body = unescape(body)  # Convert HTML entities
-            body = re.sub(r'\n+', '\n', body)  # Remove multiple newlines
-            
-            # Split the body into lines for processing
-            lines = body.strip().split('\n')
-            
-            # Initialize variables
-            name = None
-            phone = None
-            email = None
-            whatsapp = None
-            course_mode = None
+    # Add call status tracking fields - this needs to be defined in the CRMLead model
+    call_status = fields.Selection([
+        ('not_called', 'Not Called'),
+        ('call_1', '1st Call'),
+        ('followup_1', 'Followup 1'),
+        ('followup_2', 'Followup 2'),
+        ('followup_3', 'Followup 3'),
+        ('followup_4', 'Followup 4'),
+        ('followup_5', 'Followup 5'),
+        ('followup_6', 'Followup 6'),
+        ('followup_7', 'Followup 7'),
+        ('followup_8', 'Followup 8'),
+        ('followup_9', 'Followup 9'),
+        ('followup_10', 'Followup 10'),
+    ], string="Call Status", default='not_called', tracking=True)
+    
+    call_remarks = fields.Text(string="Call Remarks")
+    call_history_ids = fields.One2many('crm.lead.call.history', 'lead_id', string='Call History')
 
-            # Try to detect the format (detailed form vs simple form)
-            if 'First Name:' in body:
-                # Detailed form format
-                first_name = re.search(r'First Name:\s*([^\n]+)', body)
-                last_name = re.search(r'Last Name:\s*([^\n]+)', body)
-                name = ''
-                if first_name:
-                    name += first_name.group(1).strip()
-                if last_name:
-                    name += ' ' + last_name.group(1).strip()
-                
-                email = re.search(r'Email:\s*([^\n]+)', body)
-                phone = re.search(r'Phone Number\s*:\s*([^\n]+)', body)
-                whatsapp = re.search(r'Whatsapp Number\s*:\s*([^\n]+)', body)
-                course_mode = re.search(r'Course Mode\s*:\s*([^\n]+)', body)
-            else:
-                # Simple form format - first line is name, second line might be phone
-                if len(lines) >= 1:
-                    name = lines[0].strip()
-                    # Look for phone number in first few lines
-                    for line in lines[1:4]:  # Check first few lines
-                        # Match phone number (with or without +91)
-                        clean_line = line.strip()
-                        if re.match(r'^\+?(?:91)?[6-9]\d{9}$', clean_line.replace(' ', '')):
-                            phone = clean_line
-                            break
-            
-            # Check for duplicates if email or phone exists
-            if email or phone:
-                domain = []
-                if email:
-                    email_value = email.group(1).strip() if hasattr(email, 'group') else email
-                    if email_value:
-                        domain.append(('email_from', '=', email_value))
-                if phone:
-                    phone_value = phone.group(1).strip() if hasattr(phone, 'group') else phone
-                    if phone_value:
-                        domain.append(('phone', '=', phone_value))
-                
-                if domain:
-                    existing_lead = self.env['crm.lead'].search(['|'] + domain, limit=1)
-                    if existing_lead:
-                        return existing_lead
-            
-            # Update custom values with extracted information
-            if name:
-                custom_values['name'] = name.strip()
-                # Create or update partner
-                partner_vals = {
-                    'name': name.strip(),
-                    'email': email.group(1).strip() if email and hasattr(email, 'group') else False,
-                    'phone': phone.group(1).strip() if phone and hasattr(phone, 'group') else (phone if phone else False),
-                    'whatsapp_number': whatsapp.group(1).strip() if whatsapp else False,
+    def log_call(self):
+        """Log the current call status and remarks to history"""
+        self.ensure_one()
+        if self.call_status and self.call_status != 'not_called':
+            self.env['crm.lead.call.history'].create({
+                'lead_id': self.id,
+                'call_status': self.call_status,
+                'remarks': self.call_remarks,
+                'user_id': self.env.user.id,
+            })
+            # Clear remarks field after logging
+            self.call_remarks = False
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Call Logged'),
+                    'message': _('Call status and remarks have been saved to history.'),
+                    'sticky': False,
+                    'type': 'success',
                 }
-                partner = self.env['res.partner'].create(partner_vals)
-                custom_values['partner_id'] = partner.id
-            
-            if email and hasattr(email, 'group'):
-                custom_values['email_from'] = email.group(1).strip()
-            if phone:
-                custom_values['phone'] = phone.group(1).strip() if hasattr(phone, 'group') else phone
-            if course_mode and hasattr(course_mode, 'group'):
-                mode = course_mode.group(1).strip().lower()
-                custom_values['mode_of_study'] = 'online' if 'online' in mode else 'offline'
-            
-            # Set source as Google Ads
-            google_ads_source = self.env['utm.source'].search([('name', '=', 'Google Ads')], limit=1)
-            if not google_ads_source:
-                google_ads_source = self.env['utm.source'].create({'name': 'Google Ads'})
-            custom_values['source_id'] = google_ads_source.id
-            
-            # Set type as lead
-            custom_values['type'] = 'lead'
-        
-        return super(CRMLead, self).message_new(msg_dict, custom_values)
-
-    def convert_opportunity(self, partner_id, user_ids=False, team_id=False):
-        """ Override to preserve custom fields during lead conversion """
-        # Store values of our custom fields before conversion
-        custom_field_values = {
-            'estimated_joining_date': self.estimated_joining_date,
-            'course_preferred': self.course_preferred,
-            'preferred_branch': self.preferred_branch
+            }
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Warning'),
+                'message': _('Please select a call status before logging.'),
+                'sticky': False,
+                'type': 'warning',
+            }
         }
-        
-        # Call the original method
-        result = super(CRMLead, self).convert_opportunity(partner_id, user_ids, team_id)
-        
-        # Restore our custom field values
-        self.write(custom_field_values)
-        
-        return result
 
     def schedule_walkin(self):
         """Schedule a walk-in activity"""
@@ -577,97 +508,6 @@ class CrmLeadChangeRevenueWizard(models.TransientModel):
             'collection_date': self.next_collection_date,
             'amount': self.new_expected_revenue,
         })
-
-class CrmLeadCallHistory(models.Model):
-    _name = 'crm.lead.call.history'
-    _description = 'CRM Lead Call History'
-    _order = 'create_date desc'
-
-    lead_id = fields.Many2one('crm.lead', string='Lead', required=True, ondelete='cascade')
-    call_status = fields.Selection([
-        ('not_called', 'Not Called'),
-        ('call_1', '1st Call'),
-        ('followup_1', 'Followup 1'),
-        ('followup_2', 'Followup 2'),
-        ('followup_3', 'Followup 3'),
-        ('followup_4', 'Followup 4'),
-        ('followup_5', 'Followup 5'),
-        ('followup_6', 'Followup 6'),
-        ('followup_7', 'Followup 7'),
-        ('followup_8', 'Followup 8'),
-        ('followup_9', 'Followup 9'),
-        ('followup_10', 'Followup 10'),
-    ], string="Call Status", required=True)
-    remarks = fields.Text(string="Remarks")
-    user_id = fields.Many2one('res.users', string='User', default=lambda self: self.env.user.id)
-    create_date = fields.Datetime(string='Date', readonly=True)
-
-class CrmTeam(models.Model):
-    _inherit = "crm.team"
-    queue_line_ids = fields.One2many('crm.lead.queueing.line', 'team_id', store=True)
-
-    def create(self, vals):
-        res = super().create(vals)
-        self.set_queue_line_ids(res)
-        return res
-    
-    def write(self, vals):
-        res = super().write(vals)
-        self.set_queue_line_ids(self)
-        return res
-    
-    def set_queue_line_ids(self, recs):
-        for record in recs:
-            queue_line_users = record.queue_line_ids.mapped('salesperson_id.id')
-            for member in record.member_ids:
-                # Create queue line for the new member
-                if member.id not in queue_line_users:
-                    self.env['crm.lead.queueing.line'].create({
-                        'salesperson_id': member.id,
-                        'current_lead': False,
-                        'team_id': record.id
-                    })
-            # Remove queue lines for non existing members
-            record.queue_line_ids.filtered(lambda line: line.salesperson_id.id not in record.member_ids.ids).unlink()
-
-class CrmLeadQueueingLine(models.Model):
-    _name = "crm.lead.queueing.line"
-    salesperson_id = fields.Many2one('res.users', string="Salesperson")
-    current_lead = fields.Many2one('crm.lead', domain=[('type','=','lead')])
-    team_id = fields.Many2one('crm.team', check_company=True)
-
-class CrmLeadCollection(models.Model):
-    _name = 'crm.lead.collection'
-    _description = 'CRM Lead Collection'
-
-    lead_id = fields.Many2one('crm.lead', string="Lead", required=True)
-    collection_date = fields.Date(string="Collection Date", required=True)
-    amount = fields.Monetary(string="Amount", required=True)
-    currency_id = fields.Many2one('res.currency', string='Currency', required=True, default=lambda self: self.env.company.currency_id.id)
-    collected_amount = fields.Monetary(string="Collected Amount", default=0.0)
-    balance = fields.Monetary(string="Balance", compute="_compute_balance", store=True)
-    state = fields.Selection([('pending', 'Pending'), ('collected', 'Collected')], string="State", default='pending')
-
-    @api.depends('amount', 'collected_amount')
-    def _compute_balance(self):
-        for record in self:
-            record.balance = record.amount - record.collected_amount
-            if record.balance <= 0:
-                record.state = 'collected'
-            else:
-                record.state = 'pending'
-
-    def action_enter_collected_amount(self):
-        view_id = self.env.ref('tijus_crm_custom.view_enter_collected_amount_form').id
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Enter Collected Amount',
-            'res_model': 'crm.lead.collection.enter.amount',
-            'view_mode': 'form',
-            'view_id': view_id,
-            'target': 'new',
-            'context': {'default_collection_id': self.id},
-        }
 
 class CrmLeadCallHistory(models.Model):
     _name = 'crm.lead.call.history'
