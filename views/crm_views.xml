@@ -370,6 +370,10 @@
                 <field name="user_id" widget="many2one_avatar_user" decoration-bf="1" optional="hide"/>
                 <field name="team_id" decoration-bf="1" optional="hide"/>
                 <field name="source_id" optional="hide"/>
+                <field name="call_status" decoration-info="call_status == 'call_1'" 
+                       decoration-success="call_status in ['followup_1', 'followup_2', 'followup_3']" 
+                       decoration-warning="call_status in ['followup_4', 'followup_5', 'followup_6']" 
+                       decoration-danger="call_status in ['followup_7', 'followup_8', 'followup_9', 'followup_10']" optional="hide"/>
             </tree>
         </field>
     </record>
@@ -409,6 +413,62 @@
             <!-- Set default order -->
             <xpath expr="//tree" position="attributes">
                 <attribute name="default_order">create_date desc</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Call history form view -->
+    <record id="view_crm_lead_call_history_form" model="ir.ui.view">
+        <field name="name">crm.lead.call.history.form</field>
+        <field name="model">crm.lead.call.history</field>
+        <field name="arch" type="xml">
+            <form string="Call History">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="lead_id" readonly="1"/>
+                            <field name="call_status" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="remarks" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Call history tree view -->
+    <record id="view_crm_lead_call_history_tree" model="ir.ui.view">
+        <field name="name">crm.lead.call.history.tree</field>
+        <field name="model">crm.lead.call.history</field>
+        <field name="arch" type="xml">
+            <tree string="Call History">
+                <field name="lead_id"/>
+                <field name="create_date"/>
+                <field name="call_status"/>
+                <field name="user_id"/>
+                <field name="remarks"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Add search view for call status -->
+    <record id="view_crm_lead_filter_call_status" model="ir.ui.view">
+        <field name="name">crm.lead.filter.call.status</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="call_status"/>
+            </xpath>
+            <xpath expr="//filter[@name='won']" position="after">
+                <separator/>
+                <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
+                <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
+                <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
             </xpath>
         </field>
     </record>
