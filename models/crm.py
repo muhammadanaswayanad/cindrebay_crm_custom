@@ -509,6 +509,50 @@ class CRMLead(models.Model):
         
         return result
 
+    def schedule_walkin(self):
+        """Schedule a walk-in activity"""
+        self.ensure_one()
+        try:
+            # Try to find the walk-in activity type
+            activity_type = self.env.ref('cindrebay_crm_custom.mail_activity_type_walkin', raise_if_not_found=False)
+            if not activity_type:
+                # Fallback to a standard activity type if custom one not found
+                activity_type = self.env['mail.activity.type'].search([('name', '=', 'Meeting')], limit=1)
+            
+            if not activity_type:
+                # Further fallback to any activity type if no Meeting type
+                activity_type = self.env['mail.activity.type'].search([], limit=1)
+                
+            if activity_type:
+                self.activity_schedule(
+                    activity_type_id=activity_type.id,
+                    summary=_("Walk-in Visit"),
+                    note=_("Customer will visit the center. Please follow up accordingly."),
+                    date_deadline=fields.Date.today()
+                )
+                
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Walk-in Scheduled'),
+                    'message': _('A walk-in activity has been scheduled for this lead.'),
+                    'sticky': False,
+                    'type': 'success',
+                }
+            }
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Error'),
+                    'message': str(e),
+                    'sticky': False,
+                    'type': 'danger',
+                }
+            }
+
 class CrmLeadChangeRevenueWizard(models.TransientModel):
     _name = 'crm.lead.change.revenue.wizard'
     _description = 'Change Expected Revenue Wizard'
