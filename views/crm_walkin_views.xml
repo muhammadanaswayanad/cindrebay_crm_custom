@@ -8,13 +8,13 @@
             <form>
                 <header>
                     <button name="action_completed" string="Mark as Completed" type="object" 
-                            attrs="{'invisible': [('state', '!=', 'scheduled')]}" class="oe_highlight"/>
+                            invisible="state != 'scheduled'" class="oe_highlight"/>
                     <button name="action_reschedule" string="Reschedule" type="object" 
-                            attrs="{'invisible': [('state', 'not in', ['scheduled', 'no_show'])]}"/>
+                            invisible="state not in ('scheduled', 'no_show')"/>
                     <button name="action_no_show" string="No Show" type="object" 
-                            attrs="{'invisible': [('state', '!=', 'scheduled')]}"/>
+                            invisible="state != 'scheduled'"/>
                     <button name="action_cancel" string="Cancel" type="object" 
-                            attrs="{'invisible': [('state', '!=', 'scheduled')]}"/>
+                            invisible="state != 'scheduled'"/>
                     <field name="state" widget="statusbar" statusbar_visible="scheduled,completed,rescheduled,cancelled,no_show"/>
                 </header>
                 <sheet>
@@ -30,26 +30,26 @@
                     </div>
                     <group>
                         <group>
-                            <field name="lead_id" attrs="{'readonly': [('state', '!=', 'scheduled')]}"/>
+                            <field name="lead_id" readonly="state != 'scheduled'"/>
                             <field name="user_id"/>
                             <field name="partner_id" readonly="1"/>
-                            <field name="parent_walkin_id" readonly="1" attrs="{'invisible': [('parent_walkin_id', '=', False)]}"/>
+                            <field name="parent_walkin_id" readonly="1" invisible="not parent_walkin_id"/>
                         </group>
                         <group>
-                            <field name="scheduled_date" attrs="{'readonly': [('state', '!=', 'scheduled')]}"/>
-                            <field name="actual_date" attrs="{'invisible': [('actual_date', '=', False)], 'readonly': True}"/>
-                            <field name="reschedule_reason" attrs="{'invisible': [('state', '!=', 'rescheduled')], 'readonly': True}"/>
+                            <field name="scheduled_date" readonly="state != 'scheduled'"/>
+                            <field name="actual_date" invisible="not actual_date" readonly="1"/>
+                            <field name="reschedule_reason" invisible="state != 'rescheduled'" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Notes">
                             <field name="notes" placeholder="Add notes about this walk-in appointment..."/>
                         </page>
-                        <page string="Reschedule Info" attrs="{'invisible': [('state', '!=', 'rescheduled')]}">
+                        <page string="Reschedule Info" invisible="state != 'rescheduled'">
                             <group>
-                                <field name="reschedule_note" readonly="1" attrs="{'invisible': [('reschedule_note', '=', False)]}"/>
+                                <field name="reschedule_note" readonly="1" invisible="not reschedule_note"/>
                             </group>
-                            <field name="child_walkin_ids" readonly="1" attrs="{'invisible': [('child_walkin_ids', '=', [])]}">
+                            <field name="child_walkin_ids" readonly="1" invisible="not child_walkin_ids">
                                 <tree>
                                     <field name="name"/>
                                     <field name="scheduled_date"/>
@@ -113,15 +113,15 @@
                 <field name="partner_id"/>
                 <field name="user_id"/>
                 <separator/>
-                <filter name="scheduled" string="Scheduled" domain="[('state', '=', 'scheduled')]"/>
-                <filter name="completed" string="Completed" domain="[('state', '=', 'completed')]"/>
-                <filter name="rescheduled" string="Rescheduled" domain="[('state', '=', 'rescheduled')]"/>
-                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
-                <filter name="no_show" string="No Show" domain="[('state', '=', 'no_show')]"/>
+                <filter string="Scheduled" name="scheduled" domain="[('state', '=', 'scheduled')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
+                <filter string="Rescheduled" name="rescheduled" domain="[('state', '=', 'rescheduled')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <filter string="No Show" name="no_show" domain="[('state', '=', 'no_show')]"/>
                 <separator/>
-                <filter name="my_walkins" string="My Walk-ins" domain="[('user_id', '=', uid)]"/>
-                <filter name="today" string="Today" domain="[('scheduled_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('scheduled_date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
-                <filter name="tomorrow" string="Tomorrow" domain="[('scheduled_date', '&gt;=', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')), ('scheduled_date', '&lt;=', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="My Walk-ins" name="my_walkins" domain="[('user_id', '=', uid)]"/>
+                <filter string="Today" name="today" domain="[('scheduled_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')), ('scheduled_date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="Tomorrow" name="tomorrow" domain="[('scheduled_date', '&gt;=', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')), ('scheduled_date', '&lt;=', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d 23:59:59'))]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_by_state" domain="[]" context="{'group_by': 'state'}"/>
                     <filter string="Lead" name="group_by_lead" domain="[]" context="{'group_by': 'lead_id'}"/>
