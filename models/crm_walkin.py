@@ -78,6 +78,17 @@ class CrmLeadWalkin(models.Model):
                 'default_lead_id': self.lead_id.id,
             },
         }
+    
+    def action_view_lead(self):
+        """Navigate to the related lead form view"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'crm.lead',
+            'view_mode': 'form',
+            'res_id': self.lead_id.id,
+            'target': 'current',
+        }
 
 class CrmLeadWalkinRescheduleWizard(models.TransientModel):
     _name = 'crm.lead.walkin.reschedule.wizard'
