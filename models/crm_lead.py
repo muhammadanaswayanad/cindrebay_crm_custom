@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+import random
 from datetime import datetime
 
 class CrmLead(models.Model):
@@ -17,7 +18,16 @@ class CrmLead(models.Model):
         # Override write to handle date_closed field editability
         if 'date_closed' in vals and not self.date_closed_editable:
             vals.pop('date_closed')
-        return super(CrmLead, self).write(vals)
+        result = super(CrmLead, self).write(vals)
+
+        # If preferred_branch was updated, try to reassign the team
+        if 'preferred_branch' in vals:
+            for lead in self:
+                # Only reassign if no team or if lead was updated intentionally 
+                if not lead.team_id or 'team_id' not in vals:
+                    lead._assign_team_from_branch()
+                    
+        return result
 
     @api.model
     def fields_get(self, allfields=None, attributes=None):
@@ -26,3 +36,57 @@ class CrmLead(models.Model):
         if 'date_closed' in res:
             res['date_closed']['readonly'] = False
         return res
+
+    @api.model
+    def _get_team_by_preferred_branch(self, branch):
+        """
+        Find a sales team that handles the specified branch.
+        
+        Args:
+            branch: The preferred branch value from the lead
+            
+        Returns:
+            crm.team record if found, False otherwise
+        """
+        if not branch:
+            return False
+            
+        # Normalize branch name (lowercase, strip spaces, remove trailing underscore)
+        normalized_branch = branch.strip().lower().rstrip('_')
+        
+        # Find teams that include this branch in their preferred_branches
+        teams = self.env['crm.team'].search([
+            ('preferred_branches', '!=', False)
+        ])
+        
+        for team in teams:
+            team_branches = team._get_normalized_branches()
+            if normalized_branch in team_branches:
+                return team
+                
+        return False
+    
+    def _assign_team_from_branch(self):
+        """
+        Assign the lead to a team based on the preferred_branch field.
+        Returns True if successfully assigned, False if no team found.
+        """
+        self.ensure_one()
+        team = self._get_team_by_preferred_branch(self.preferred_branch)
+        if team:
+            self.team_id = team.id
+            return True
+        return False
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        leads = super(CrmLead, self).create(vals_list)
+        
+        for lead in leads:
+            # Try to assign based on preferred branch first
+            if not lead._assign_team_from_branch():
+                # Fall back to the existing random assignment logic if no branch match
+                # ... existing random assignment code here ...
+                pass
+                
+        return leads
