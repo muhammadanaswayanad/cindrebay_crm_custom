@@ -378,6 +378,8 @@
                        decoration-success="call_status in ['followup_1', 'followup_2', 'followup_3']" 
                        decoration-warning="call_status in ['followup_4', 'followup_5', 'followup_6']" 
                        decoration-danger="call_status in ['followup_7', 'followup_8', 'followup_9', 'followup_10']" optional="hide"/>
+                <!-- Add call_remarks field and make it visible by default (no optional="hide") -->
+                <field name="call_remarks" decoration-bf="1"/>
             </tree>
         </field>
     </record>
