@@ -12,8 +12,8 @@
         'mail',  # for activity type
     ],
     'data': [
+        'security/record_rules.xml',  # Add this line if not already present
         'security/ir.model.access.csv',
-        'security/record_rules.xml',
         'data/activity_data.xml',
         'data/sequence.xml',  # New sequence data
         'views/crm_lead_views.xml',
