@@ -252,6 +252,8 @@ class CRMLead(models.Model):
     def write(self, vals):
         # Store old user_id before write
         old_user_ids = {record.id: record.user_id.id for record in self}
+        # Store old team_id before write
+        old_team_ids = {record.id: record.team_id.id for record in self}
         
         res = super(CRMLead, self).write(vals)
         
@@ -271,6 +273,15 @@ class CRMLead(models.Model):
                     # Reassign activities to new user
                     if activities:
                         activities.write({'user_id': new_user_id})
+        
+        # Add check for team_id changes
+        if 'team_id' in vals:
+            for record in self:
+                old_team_id = old_team_ids[record.id]
+                new_team_id = vals.get('team_id')
+                
+                if old_team_id != new_team_id and not self.env.context.get('setting_lead_queue'):
+                    record.with_context(setting_lead_queue=True).set_lead_queue()
         
         # Add check for type change (lead to opportunity conversion)
         converting_to_opportunity = vals.get('type') == 'opportunity'
