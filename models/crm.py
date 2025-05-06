@@ -689,3 +689,76 @@ class CrmLeadWalkinWizard(models.TransientModel):
                 }
         
         return {'type': 'ir.actions.act_window_close'}
+
+    # Add onchange method for team_id field
+
+    @api.onchange('team_id')
+    def _onchange_team_id(self):
+        """Trigger queue assignment when team changes"""
+        if self.team_id and not self.user_id:
+            # Call set_lead_queue in onchange context
+            self._set_lead_queue_onchange()
+
+    def _set_lead_queue_onchange(self):
+        """Version of set_lead_queue for onchange - doesn't use super().write"""
+        for record in self:
+            if record.type == 'lead' and not record.user_id:
+                # Process queue-based assignment if team is set
+                if record.team_id and record.team_id.queue_line_ids:
+                    all_users_assigned_lead = len(record.team_id.queue_line_ids.mapped('current_lead')) == len(record.team_id.queue_line_ids)
+                    
+                    if all_users_assigned_lead:
+                        # In onchange, we're just setting values on the form
+                        if record.team_id.queue_line_ids:
+                            record.user_id = record.team_id.queue_line_ids[0].salesperson_id
+                    else:
+                        for queue_line in record.team_id.queue_line_ids:
+                            # If no lead is assigned to this salesperson in current round
+                            if not queue_line.current_lead:
+                                record.user_id = queue_line.salesperson_id
+                                break
+
+    # Update existing set_lead_queue method to ensure it's called from write method
+    def set_lead_queue(self):
+        for record in self:
+            # Skip if we're in recursion (check context)
+            if self.env.context.get('setting_lead_queue'):
+                continue
+            
+            if record.type == 'lead' and not record.user_id:
+                # First try to assign based on preferred branch
+                if record.preferred_branch:
+                    team = self.env['crm.team'].search([
+                        ('name', 'ilike', record.preferred_branch)
+                    ], limit=1)
+                    if team:
+                        # Use super().write to bypass our overridden write method
+                        super(CRMLead, record).write({'team_id': team.id})
+            
+                # If no team assigned by preferred branch, try city
+                if not record.team_id and record.city:
+                    team = self.env['crm.team'].search([
+                        ('name', 'ilike', record.city)
+                    ], limit=1)
+                    if team:
+                        # Use super().write to bypass our overridden write method
+                        super(CRMLead, record).write({'team_id': team.id})
+            
+                # Now proceed with queue-based assignment if we have a team
+                if record.team_id and record.team_id.queue_line_ids:
+                    all_users_assigned_lead = len(record.team_id.queue_line_ids.mapped('current_lead')) == len(record.team_id.queue_line_ids)
+                    # Reset current lead of all salespersons to False, to allow allocating new leads to them in next round
+                    if all_users_assigned_lead:
+                        record.team_id.queue_line_ids[0].write({'current_lead': record.id})
+                        # Use super().write to bypass our overridden write method
+                        super(CRMLead, record).write({'user_id': record.team_id.queue_line_ids[0].salesperson_id.id})
+                        for queue_line in record.team_id.queue_line_ids[1:]:
+                            queue_line.write({'current_lead': False})
+                    else:
+                        for queue_line in record.team_id.queue_line_ids:
+                            # If no lead is assigned to this salesperson in current round
+                            if not queue_line.current_lead:
+                                queue_line.write({'current_lead': record.id})
+                                # Use super().write to bypass our overridden write method
+                                super(CRMLead, record).write({'user_id': queue_line.salesperson_id.id})
+                                break

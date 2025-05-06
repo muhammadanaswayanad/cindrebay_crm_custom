@@ -510,4 +510,8 @@
         </field>
     </record>
 
+    <!-- Modify team_id field to trigger an onchange action -->
+    <xpath expr="//field[@name='team_id']" position="attributes">
+        <attribute name="on_change">1</attribute>
+    </xpath>
 </odoo>
