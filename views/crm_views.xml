@@ -495,16 +495,17 @@
         <field name="model">crm.lead.walkin.wizard</field>
         <field name="arch" type="xml">
             <form string="Schedule Walk-in">
-                    <field name="lead_id" invisible="1"/>ible="1"/>
+                <group>
+                    <field name="lead_id" invisible="1"/>
                     <field name="walkin_date"/>
-                    <field name="notes" placeholder="Any additional notes about the walk-in visit..."/>ld name="notes" placeholder="Any additional notes about the walk-in visit..."/>
+                    <field name="notes" placeholder="Any additional notes about the walk-in visit..."/>
                 </group>
                 <footer>
-                    <button string="Schedule" name="action_schedule_walkin" type="object" class="btn-primary"/>ject" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>on string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>ooter>
-            </form>rm>
-        </field>ld>
-    </record>ecord>
+                    <button string="Schedule" name="action_schedule_walkin" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
 
-</odoo></odoo>
+</odoo>
