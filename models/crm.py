@@ -287,8 +287,25 @@ class CRMLead(models.Model):
 
     def set_lead_queue(self):
         for record in self:
-            if record.team_id and record.type=='lead' and not record.user_id:
-                if record.team_id.queue_line_ids:
+            if record.type == 'lead' and not record.user_id:
+                # First try to assign based on preferred branch
+                if record.preferred_branch:
+                    team = self.env['crm.team'].search([
+                        ('name', 'ilike', record.preferred_branch)
+                    ], limit=1)
+                    if team:
+                        record.team_id = team.id
+                
+                # If no team assigned by preferred branch, try city
+                if not record.team_id and record.city:
+                    team = self.env['crm.team'].search([
+                        ('name', 'ilike', record.city)
+                    ], limit=1)
+                    if team:
+                        record.team_id = team.id
+                
+                # Now proceed with queue-based assignment if we have a team
+                if record.team_id and record.team_id.queue_line_ids:
                     all_users_assigned_lead = len(record.team_id.queue_line_ids.mapped('current_lead')) == len(record.team_id.queue_line_ids)
                     # Reset current lead of all salespersons to False, to allow allocating new leads to them in next round
                     if all_users_assigned_lead:
