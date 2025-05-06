@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
+    <!-- Correctly structured records -->
     <record id="crm.crm_rule_personal_lead" model="ir.rule">
         <field name="name">Personal Leads</field>
         <field ref="model_crm_lead" name="model_id"/>
