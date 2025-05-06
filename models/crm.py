@@ -4,6 +4,7 @@ from datetime import timedelta
 import base64
 import csv
 from io import StringIO
+import random
 
 class CrmLeadImportWizard(models.TransientModel):
     _name = 'crm.lead.import.wizard'
@@ -755,21 +756,12 @@ class CrmLeadWalkinWizard(models.TransientModel):
                         # Use super().write to bypass our overridden write method
                         super(CRMLead, record).write({'team_id': team.id})
             
-                # Now proceed with queue-based assignment if we have a team
-                if record.team_id and record.team_id.queue_line_ids:
-                    all_users_assigned_lead = len(record.team_id.queue_line_ids.mapped('current_lead')) == len(record.team_id.queue_line_ids)
-                    # Reset current lead of all salespersons to False, to allow allocating new leads to them in next round
-                    if all_users_assigned_lead:
-                        record.team_id.queue_line_ids[0].write({'current_lead': record.id})
-                        # Use super().write to bypass our overridden write method
-                        super(CRMLead, record).write({'user_id': record.team_id.queue_line_ids[0].salesperson_id.id})
-                        for queue_line in record.team_id.queue_line_ids[1:]:
-                            queue_line.write({'current_lead': False})
-                    else:
-                        for queue_line in record.team_id.queue_line_ids:
-                            # If no lead is assigned to this salesperson in current round
-                            if not queue_line.current_lead:
-                                queue_line.write({'current_lead': record.id})
-                                # Use super().write to bypass our overridden write method
-                                super(CRMLead, record).write({'user_id': queue_line.salesperson_id.id})
-                                break
+                # If team is assigned, select a random salesperson if none set
+                if record.team_id and not record.user_id:
+                    team_members = self.env['crm.team.member'].search([
+                        ('crm_team_id', '=', record.team_id.id),
+                        ('active', '=', True)
+                    ])
+                    if team_members:
+                        random_member = random.choice(team_members)
+                        super(CRMLead, record).write({'user_id': random_member.user_id.id})
