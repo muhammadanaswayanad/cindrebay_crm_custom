@@ -212,9 +212,10 @@
                 <!-- Add call status to kanban cards -->
                 <div t-if="record.call_status.raw_value" class="mt-1">
                     <span t-attf-class="badge #{record.call_status.raw_value == 'call_1' ? 'badge-info' : 
+                                            (record.call_status.raw_value == 'not_connected' ? 'badge-muted' :
                                             (record.call_status.raw_value in ['followup_1', 'followup_2', 'followup_3'] ? 'badge-success' : 
                                             (record.call_status.raw_value in ['followup_4', 'followup_5', 'followup_6'] ? 'badge-warning' : 
-                                            (record.call_status.raw_value in ['followup_7', 'followup_8', 'followup_9', 'followup_10'] ? 'badge-danger' : '')))}">
+                                            (record.call_status.raw_value in ['followup_7', 'followup_8', 'followup_9', 'followup_10'] ? 'badge-danger' : ''))))}">
                         <field name="call_status"/>
                     </span>
                 </div>
@@ -482,6 +483,7 @@
             <filter name="assigned_to_me" position="after">
                 <separator/>
                 <filter string="Not Called" name="not_called" domain="[('call_status', '=', 'not_called')]"/>
+                <filter string="Not Connected" name="not_connected" domain="[('call_status', '=', 'not_connected')]"/>
                 <filter string="1st Call" name="first_call" domain="[('call_status', '=', 'call_1')]"/>
                 <filter string="In Followup" name="in_followup" domain="[('call_status', 'in', ['followup_1', 'followup_2', 'followup_3', 'followup_4', 'followup_5', 'followup_6', 'followup_7', 'followup_8', 'followup_9', 'followup_10'])]"/>
             </filter>
@@ -493,16 +495,16 @@
         <field name="model">crm.lead.walkin.wizard</field>
         <field name="arch" type="xml">
             <form string="Schedule Walk-in">
-                <group>
-                    <field name="lead_id" invisible="1"/>
+                    <field name="lead_id" invisible="1"/>ible="1"/>
                     <field name="walkin_date"/>
-                    <field name="notes" placeholder="Any additional notes about the walk-in visit..."/>
+                    <field name="notes" placeholder="Any additional notes about the walk-in visit..."/>ld name="notes" placeholder="Any additional notes about the walk-in visit..."/>
                 </group>
                 <footer>
-                    <button string="Schedule" name="action_schedule_walkin" type="object" class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-</odoo>
+                    <button string="Schedule" name="action_schedule_walkin" type="object" class="btn-primary"/>ject" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>on string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>ooter>
+            </form>rm>
+        </field>ld>
+    </record>ecord>
+
+</odoo></odoo>

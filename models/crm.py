@@ -405,9 +405,10 @@ class CRMLead(models.Model):
             'tag': 'reload',
         }
 
-    # Add call status tracking fields - this needs to be defined in the CRMLead model
+    # Update the call_status field to include 'not_connected'
     call_status = fields.Selection([
         ('not_called', 'Not Called'),
+        ('not_connected', 'Call not connected'), # New status
         ('call_1', '1st Call'),
         ('followup_1', 'Followup 1'),
         ('followup_2', 'Followup 2'),
@@ -504,6 +505,7 @@ class CrmLeadCallHistory(models.Model):
     lead_id = fields.Many2one('crm.lead', string='Lead', required=True, ondelete='cascade')
     call_status = fields.Selection([
         ('not_called', 'Not Called'),
+        ('not_connected', 'Call not connected'), # New status
         ('call_1', '1st Call'),
         ('followup_1', 'Followup 1'),
         ('followup_2', 'Followup 2'),
