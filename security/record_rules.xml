@@ -1,56 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Override Personal Leads rule -->
-    <function name="write" model="ir.model.data">
-        <function name="search" model="ir.model.data">
-            <value eval="[('module', '=', 'crm'), ('name', '=', 'crm_rule_personal_lead')]"/>
-        </function>
-        <value eval="{'noupdate': False}"/>
-    </function>
-
+    <!-- Correctly structured records -->
     <record id="crm.crm_rule_personal_lead" model="ir.rule">
         <field name="name">Personal Leads</field>
-        <field ref="crm.model_crm_lead" name="model_id"/>
+        <field ref="model_crm_lead" name="model_id"/>
         <field name="domain_force">[('user_id', '=', user.id)]</field>
         <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
     </record>
 
-    <!-- Create rules directly with even more simplified approach -->
-    <function model="ir.model" name="create_and_get_rules">
-        <value eval="('crm.lead.collection', [
-            {
-                'name': 'Lead Collection User',
-                'domain_force': '[(&quot;lead_id.user_id&quot;, &quot;=&quot;, user.id)]',
-                'groups': [(4, ref('sales_team.group_sale_salesman'))]
-            },
-            {
-                'name': 'Lead Collection Manager',
-                'domain_force': '[(1, &quot;=&quot;, 1)]',
-                'groups': [(4, ref('sales_team.group_sale_manager'))]
-            }
-        ])"/>
-    </function>
+    <!-- Use standard record definitions instead of function calls -->
+    <record id="crm_lead_collection_rule_user" model="ir.rule">
+        <field name="name">Lead Collection User</field>
+        <field name="model_id" ref="model_crm_lead_collection"/>
+        <field name="domain_force">[('lead_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+    </record>
 
-    <function model="ir.model" name="create_and_get_rules">
-        <value eval="('crm.lead.call.history', [
-            {
-                'name': 'Personal Call History',
-                'domain_force': '[(&quot;user_id&quot;, &quot;=&quot;, user.id)]',
-                'groups': [(4, ref('sales_team.group_sale_salesman'))],
-                'perm_read': True,
-                'perm_write': False,
-                'perm_create': True,
-                'perm_unlink': False
-            },
-            {
-                'name': 'All Call History for Managers',
-                'domain_force': '[(1, &quot;=&quot;, 1)]',
-                'groups': [(4, ref('sales_team.group_sale_manager'))],
-                'perm_read': True,
-                'perm_write': True,
-                'perm_create': True,
-                'perm_unlink': True
-            }
-        ])"/>
-    </function>
+    <record id="crm_lead_collection_rule_manager" model="ir.rule">
+        <field name="name">Lead Collection Manager</field>
+        <field name="model_id" ref="model_crm_lead_collection"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+    </record>
+
+    <!-- Security rule: Salespersons can only see their own call history -->
+    <record id="rule_crm_lead_call_history_personal" model="ir.rule">
+        <field name="name">Personal Call History</field>
+        <field name="model_id" ref="model_crm_lead_call_history"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Allow managers to see all call history -->
+    <record id="rule_crm_lead_call_history_manager" model="ir.rule">
+        <field name="name">All Call History for Managers</field>
+        <field name="model_id" ref="model_crm_lead_call_history"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
 </odoo>
