@@ -12,7 +12,7 @@
         'mail',  # for activity type
     ],
     'data': [
-        'security/record_rules_fix.xml',  # Updated reference to new fixed file
+        'security/record_rules.xml',  # Changed back to original filename
         'security/ir.model.access.csv',
         'data/activity_data.xml',
         'data/sequence.xml',  # New sequence data

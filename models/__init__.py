@@ -4,3 +4,4 @@ from . import crm_lead
 from . import crm_walkin
 from . import crm_team
 from . import crm_lead_reassign_wizard
+from . import ir_model  # Add this new import

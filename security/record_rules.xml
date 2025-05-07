@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
+    <!-- Override Personal Leads rule -->
     <function name="write" model="ir.model.data">
         <function name="search" model="ir.model.data">
             <value eval="[('module', '=', 'crm'), ('name', '=', 'crm_rule_personal_lead')]"/>
@@ -15,48 +15,42 @@
         <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
     </record>
 
-    <!-- Simple rule definitions that don't rely on external IDs -->
-    <function model="ir.rule" name="create">
-        <value eval="[{
-            'name': 'Lead Collection User',
-            'model_id': obj().env.ref('tijus_crm_custom.model_crm_lead_collection', False) or obj().env['ir.model'].search([('model', '=', 'crm.lead.collection')], limit=1).id,
-            'domain_force': &quot;[('lead_id.user_id', '=', user.id)]&quot;,
-            'groups': [(4, ref('sales_team.group_sale_salesman'))]
-        }]"/>
+    <!-- Create rules directly with even more simplified approach -->
+    <function model="ir.model" name="create_and_get_rules">
+        <value eval="('crm.lead.collection', [
+            {
+                'name': 'Lead Collection User',
+                'domain_force': '[(&quot;lead_id.user_id&quot;, &quot;=&quot;, user.id)]',
+                'groups': [(4, ref('sales_team.group_sale_salesman'))]
+            },
+            {
+                'name': 'Lead Collection Manager',
+                'domain_force': '[(1, &quot;=&quot;, 1)]',
+                'groups': [(4, ref('sales_team.group_sale_manager'))]
+            }
+        ])"/>
     </function>
 
-    <function model="ir.rule" name="create">
-        <value eval="[{
-            'name': 'Lead Collection Manager',
-            'model_id': obj().env.ref('tijus_crm_custom.model_crm_lead_collection', False) or obj().env['ir.model'].search([('model', '=', 'crm.lead.collection')], limit=1).id,
-            'domain_force': &quot;[(1, '=', 1)]&quot;,
-            'groups': [(4, ref('sales_team.group_sale_manager'))]
-        }]"/>
-    </function>
-
-    <function model="ir.rule" name="create">
-        <value eval="[{
-            'name': 'Personal Call History',
-            'model_id': obj().env.ref('tijus_crm_custom.model_crm_lead_call_history', False) or obj().env['ir.model'].search([('model', '=', 'crm.lead.call.history')], limit=1).id,
-            'domain_force': &quot;[('user_id', '=', user.id)]&quot;,
-            'groups': [(4, ref('sales_team.group_sale_salesman'))],
-            'perm_read': True,
-            'perm_write': False,
-            'perm_create': True,
-            'perm_unlink': False
-        }]"/>
-    </function>
-
-    <function model="ir.rule" name="create">
-        <value eval="[{
-            'name': 'All Call History for Managers',
-            'model_id': obj().env.ref('tijus_crm_custom.model_crm_lead_call_history', False) or obj().env['ir.model'].search([('model', '=', 'crm.lead.call.history')], limit=1).id,
-            'domain_force': &quot;[(1, '=', 1)]&quot;,
-            'groups': [(4, ref('sales_team.group_sale_manager'))],
-            'perm_read': True,
-            'perm_write': True,
-            'perm_create': True,
-            'perm_unlink': True
-        }]"/>
+    <function model="ir.model" name="create_and_get_rules">
+        <value eval="('crm.lead.call.history', [
+            {
+                'name': 'Personal Call History',
+                'domain_force': '[(&quot;user_id&quot;, &quot;=&quot;, user.id)]',
+                'groups': [(4, ref('sales_team.group_sale_salesman'))],
+                'perm_read': True,
+                'perm_write': False,
+                'perm_create': True,
+                'perm_unlink': False
+            },
+            {
+                'name': 'All Call History for Managers',
+                'domain_force': '[(1, &quot;=&quot;, 1)]',
+                'groups': [(4, ref('sales_team.group_sale_manager'))],
+                'perm_read': True,
+                'perm_write': True,
+                'perm_create': True,
+                'perm_unlink': True
+            }
+        ])"/>
     </function>
 </odoo>
