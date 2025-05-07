@@ -252,6 +252,13 @@ class CRMLead(models.Model):
     def write(self, vals):
         # Store old user_id before write
         old_user_ids = {record.id: record.user_id.id for record in self}
+        # Store old team_id before write
+        old_team_ids = {record.id: record.team_id.id for record in self}
+        
+        # Check if we're already in a recursion loop
+        if self.env.context.get('setting_lead_queue'):
+            # Skip team and lead queue related logic when we're already in the assignment process
+            return super(CRMLead, self).write(vals)
         
         res = super(CRMLead, self).write(vals)
         
@@ -272,12 +279,24 @@ class CRMLead(models.Model):
                     if activities:
                         activities.write({'user_id': new_user_id})
         
+        # Add check for team_id changes - but ensure we're not in a recursion
+        if 'team_id' in vals and not self.env.context.get('setting_lead_queue'):
+            for record in self:
+                old_team_id = old_team_ids[record.id]
+                new_team_id = vals.get('team_id')
+                
+                if old_team_id != new_team_id:
+                    # Use with_context to prevent recursion
+                    record.with_context(setting_lead_queue=True).set_lead_queue()
+        
         # Add check for type change (lead to opportunity conversion)
         converting_to_opportunity = vals.get('type') == 'opportunity'
-        res = super(CRMLead, self).write(vals)
-        if not self.env.context.get('importing_leads'):
+        
+        # Only check validations if not in recursion
+        if not self.env.context.get('setting_lead_queue'):
             for record in self:
-                record.set_lead_queue()
+                # Use with_context to prevent recursion
+                record.with_context(setting_lead_queue=True).set_lead_queue()
                 # Only check source and course if converting to opportunity or updating specific fields
                 if converting_to_opportunity or any(f in vals for f in ['stage_id', 'source_id', 'course_id']):
                     if record.type == 'opportunity':
@@ -287,6 +306,10 @@ class CRMLead(models.Model):
 
     def set_lead_queue(self):
         for record in self:
+            # Skip if we're in recursion (check context)
+            if self.env.context.get('setting_lead_queue'):
+                continue
+            
             if record.type == 'lead' and not record.user_id:
                 # First try to assign based on preferred branch
                 if record.preferred_branch:
@@ -294,23 +317,30 @@ class CRMLead(models.Model):
                         ('name', 'ilike', record.preferred_branch)
                     ], limit=1)
                     if team:
-                        record.team_id = team.id
-                
+                        # Use super().write to bypass our overridden write method
+                        # Add a context to prevent recursion loops
+                        super(CRMLead, record.with_context(setting_lead_queue=True)).write({'team_id': team.id})
+        
                 # If no team assigned by preferred branch, try city
                 if not record.team_id and record.city:
                     team = self.env['crm.team'].search([
                         ('name', 'ilike', record.city)
                     ], limit=1)
                     if team:
-                        record.team_id = team.id
-                
+                        # Use context to prevent recursion loops
+                        super(CRMLead, record.with_context(setting_lead_queue=True)).write({'team_id': team.id})
+        
                 # Now proceed with queue-based assignment if we have a team
                 if record.team_id and record.team_id.queue_line_ids:
                     all_users_assigned_lead = len(record.team_id.queue_line_ids.mapped('current_lead')) == len(record.team_id.queue_line_ids)
                     # Reset current lead of all salespersons to False, to allow allocating new leads to them in next round
                     if all_users_assigned_lead:
-                        record.team_id.queue_line_ids[0].write({'current_lead': record.id})
-                        record.write({'user_id': record.team_id.queue_line_ids[0].salesperson_id.id})
+                        queue_line = record.team_id.queue_line_ids[0]
+                        queue_line.write({'current_lead': record.id})
+                        # Use super().write with context to prevent recursion
+                        super(CRMLead, record.with_context(setting_lead_queue=True)).write({
+                            'user_id': queue_line.salesperson_id.id
+                        })
                         for queue_line in record.team_id.queue_line_ids[1:]:
                             queue_line.write({'current_lead': False})
                     else:
@@ -318,7 +348,10 @@ class CRMLead(models.Model):
                             # If no lead is assigned to this salesperson in current round
                             if not queue_line.current_lead:
                                 queue_line.write({'current_lead': record.id})
-                                record.write({'user_id': queue_line.salesperson_id.id})
+                                # Use context to prevent recursion
+                                super(CRMLead, record.with_context(setting_lead_queue=True)).write({
+                                    'user_id': queue_line.salesperson_id.id
+                            })
                                 break
 
     date_deadline = fields.Date(string="Deadline", required=False)
