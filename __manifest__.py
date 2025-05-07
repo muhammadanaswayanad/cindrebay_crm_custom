@@ -1,5 +1,5 @@
 {
-    'name': 'CindreBay CRM Custom',
+    'name': 'Cindrebay CRM Custom',
     'version': '1.0',
     'category': 'Sales',
     'summary': 'Custom fields for CRM Lead',
@@ -20,6 +20,8 @@
         'views/res_partner.xml',
         'views/crm_views.xml',
         'views/crm_walkin_views.xml',  # New walkin views
+        'views/crm_team_views.xml',
+        'views/crm_lead_reassign_views.xml',
     ],
     'installable': True,
     'application': False,
